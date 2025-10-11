@@ -39,7 +39,7 @@ export default function Header1({ variant }) {
             <div className="cs_main_header_in">
               <div className="cs_main_header_left">
                 <Link className="cs_site_branding" to="/" href="/">
-                  <img src="/mainimage/logo1.svg" alt="Logo" style={{ height: "50px", width: "auto" }} />
+                  <img src="/mainimage/logo3.png" alt="Logo" style={{ height: "50px", width: "auto" }} />
                 </Link>
               </div>
               <div className="cs_main_header_center">
