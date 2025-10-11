@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { fetchData, queries } from "../../lib/sanity";
 
 const Counter1 = () => {
   const [counters, setCounters] = useState([]);
@@ -11,9 +12,7 @@ const Counter1 = () => {
         setLoading(true);
 
         // Fetch counters from Sanity
-        const response = await fetch("/api/v2024-01-01/data/query/production?query=*%5B_type+%3D%3D+%22counter%22+%26%26+isActive+%3D%3D+true%5D+%7C+order%28order+asc%29");
-        const apiData = await response.json();
-        const data = apiData.result || [];
+        const data = await fetchData(queries.getCounters);
 
         setCounters(data);
       } catch (err) {

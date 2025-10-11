@@ -12,6 +12,10 @@ export const client = createClient({
   ...(import.meta.env.DEV && {
     apiHost: "/api",
   }),
+  // In production, use direct Sanity API
+  ...(import.meta.env.PROD && {
+    apiHost: "https://v488knj2.api.sanity.io",
+  }),
   // Add token if needed for private datasets
   // token: process.env.SANITY_API_TOKEN,
 });

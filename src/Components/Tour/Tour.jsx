@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { urlFor } from "../../lib/sanity";
+import { urlFor, fetchData, queries } from "../../lib/sanity";
 
 const Tour = () => {
   const [tours, setTours] = useState([]);
@@ -13,9 +13,7 @@ const Tour = () => {
         setLoading(true);
 
         // Fetch tours from Sanity
-        const response = await fetch("/api/v2024-01-01/data/query/production?query=*%5B_type+%3D%3D+%22tour%22+%26%26+isActive+%3D%3D+true%5D+%7C+order%28order+asc%29");
-        const apiData = await response.json();
-        const data = apiData.result || [];
+        const data = await fetchData(queries.getTours);
 
         // Transform Sanity data to match the expected format
         const transformedTours = data.map((tour) => ({

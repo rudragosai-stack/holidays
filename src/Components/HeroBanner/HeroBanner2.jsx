@@ -14,19 +14,8 @@ const HeroBanner2 = () => {
       try {
         setLoading(true);
 
-        // Fetch hero banners from Sanity using direct API call
-        const query = `*[_type == "heroBanner" && isActive == true] | order(order asc)`;
-        const encodedQuery = encodeURIComponent(query);
-        const apiUrl = `/api/v2024-01-01/data/query/production?query=${encodedQuery}`;
-
-        const response = await fetch(apiUrl);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const apiData = await response.json();
-        const data = apiData.result || [];
+        // Fetch hero banners from Sanity using the client
+        const data = await fetchData(queries.getHeroBanners);
 
         // Transform Sanity data to match the expected format
         const transformedSlides = data.map((banner) => ({
