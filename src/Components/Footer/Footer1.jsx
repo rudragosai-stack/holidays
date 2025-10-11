@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router";
 import loadBackgroudImages from "../Common/loadBackgroudImages";
+import logoImage from "/mainimage/logo3.png";
 
 const Footer1 = () => {
   useEffect(() => {
@@ -16,7 +17,7 @@ const Footer1 = () => {
           <div className="col-lg-2 col-md-6 mb-4">
             <div style={{ marginBottom: "20px" }}>
               <div style={{ marginBottom: "20px" }}>
-                <img src="/mainimage/logo3.png" alt="Logo" style={{ height: "50px", width: "auto" }} />
+                <img src={logoImage} alt="Logo" style={{ height: "50px", width: "auto" }} />
               </div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <a

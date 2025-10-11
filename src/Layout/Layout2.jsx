@@ -3,7 +3,7 @@ import Footer1 from "../Components/Footer/Footer1";
 import Header1 from "../Components/Header/Header1";
 import SEOHead from "../Components/SEO/SEOHead";
 import { getTravelAgencySchema, getWebSiteSchema } from "../Components/SEO/StructuredData";
-import { getPageSEO, seoConfig } from "../lib/seo-config";
+import { getPageSEO } from "../lib/seo-config";
 
 const Layout2 = () => {
   const location = useLocation();
