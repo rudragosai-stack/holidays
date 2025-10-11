@@ -8,10 +8,6 @@ export const client = createClient({
   dataset: sanityConfig.dataset,
   useCdn: sanityConfig.useCdn,
   apiVersion: sanityConfig.apiVersion,
-  // Use proxy in development to avoid CORS issues
-  ...(import.meta.env.DEV && {
-    apiHost: "/api",
-  }),
   // In production, let Sanity handle the API URL construction
   // Add token if needed for private datasets
   // token: process.env.SANITY_API_TOKEN,
@@ -42,8 +38,27 @@ export const queries = {
 // Helper function to fetch data
 export const fetchData = async (query, params = {}) => {
   try {
-    const data = await client.fetch(query, params);
-    return data;
+    if (import.meta.env.DEV) {
+      // In development, use direct fetch with proxy
+      const queryString = new URLSearchParams({
+        query: query,
+        ...params,
+      }).toString();
+
+      const proxyUrl = `http://localhost:5173/api/v${sanityConfig.apiVersion}/data/query/${sanityConfig.dataset}?${queryString}`;
+      console.log("Development API call:", proxyUrl);
+
+      const response = await fetch(proxyUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.result;
+    } else {
+      // In production, use Sanity client
+      const data = await client.fetch(query, params);
+      return data;
+    }
   } catch (error) {
     console.error("Error fetching data from Sanity:", error);
     return [];
