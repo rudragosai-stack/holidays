@@ -9,10 +9,12 @@ import Feature1 from "../Components/Feature/Feature1";
 import Category1 from "../Components/Category/Category1";
 import Cta1 from "../Components/Cta/Cta1";
 import Faq1 from "../Components/Faq/Faq1";
+import LogoTest from "../Components/LogoTest";
 
 const Home4 = () => {
   return (
     <div>
+      <LogoTest />
       <HeroBanner2></HeroBanner2>
       <Feature1></Feature1>
       <About2></About2>
