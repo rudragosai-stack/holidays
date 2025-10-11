@@ -7,7 +7,7 @@ export const getTravelAgencySchema = (websiteUrl = "https://turmet-travel.com") 
   name: "Turmet Travel",
   description: "Your gateway to amazing adventures and unforgettable travel experiences",
   url: websiteUrl,
-  logo: `${websiteUrl}/mainimage/logo.svg`,
+  logo: `${websiteUrl}/mainimage/logo3.png`,
   image: `${websiteUrl}/mainimage/banner.jpg`,
   telephone: "+1-555-0123",
   email: "info@turmet-travel.com",

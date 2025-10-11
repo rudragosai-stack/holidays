@@ -29,7 +29,7 @@ export const seoConfig = {
 
   // Default Images
   images: {
-    logo: "/mainimage/logo.svg",
+    logo: "/mainimage/logo3.png",
     banner: "/mainimage/banner.jpg",
     placeholder: "/mainimage/small.jpg",
     ogImage: "/mainimage/banner.jpg",
