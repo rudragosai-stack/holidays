@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function DropDown({ children }) {
   // Mobile Toggle
@@ -8,14 +8,7 @@ export default function DropDown({ children }) {
   };
   return (
     <>
-      <span
-        className={
-          mobileToggle
-            ? 'cs-munu_dropdown_toggle active'
-            : 'cs-munu_dropdown_toggle'
-        }
-        onClick={handelMobileToggle}
-      >
+      <span className={mobileToggle ? "cs-munu_dropdown_toggle active" : "cs-munu_dropdown_toggle"} onClick={handelMobileToggle}>
         <span></span>
       </span>
       {children}

@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/generate-sitemap.js && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "studio": "cd studio && npm run dev",
     "studio:build": "cd studio && npm run build",
-    "studio:deploy": "cd studio && npm run deploy"
+    "studio:deploy": "cd studio && npm run deploy",
+    "generate-sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@sanity/client": "^7.12.0",
@@ -22,6 +23,7 @@
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
+    "react-helmet-async": "^2.0.5",
     "react-router": "^7.5.3",
     "react-slick": "^0.30.3",
     "sanity": "^4.10.2",

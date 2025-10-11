@@ -15,17 +15,9 @@ const Footer1 = () => {
           {/* Brand and Social Media */}
           <div className="col-lg-2 col-md-6 mb-4">
             <div style={{ marginBottom: "20px" }}>
-              <h3
-                style={{
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  color: "#000",
-                  marginBottom: "20px",
-                  fontFamily: "sans-serif",
-                }}
-              >
-                Turmet
-              </h3>
+              <div style={{ marginBottom: "20px" }}>
+                <img src="/mainimage/logo.svg" alt="Logo" style={{ height: "50px", width: "auto" }} />
+              </div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <a
                   href="#"

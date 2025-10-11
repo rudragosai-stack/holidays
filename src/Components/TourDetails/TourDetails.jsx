@@ -6,7 +6,7 @@ import { urlFor, fetchData, queries } from "../../lib/sanity";
 const TourDetails = ({ slug }) => {
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [setError] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchTour = async () => {
@@ -17,7 +17,135 @@ const TourDetails = ({ slug }) => {
           return;
         }
         const data = await fetchData(queries.getTourBySlug, { slug });
-        setTour(data || null);
+        console.log("Fetched tour data:", data);
+        console.log("Tour mainImage:", data?.mainImage);
+        console.log("Full tour object keys:", data ? Object.keys(data) : "No data");
+        console.log("Image URL attempt:", data?.mainImage ? urlFor(data.mainImage).width(1200).height(700).url() : "No mainImage");
+
+        // If no tour data found, try to get from tour listing as fallback
+        if (!data || (Array.isArray(data) && data.length === 0)) {
+          console.log("No tour data found, trying fallback...");
+          const allTours = await fetchData(queries.getTours);
+          const fallbackTour = allTours.find((t) => t.slug?.current === slug);
+          if (fallbackTour) {
+            console.log("Found fallback tour:", fallbackTour);
+            setTour(fallbackTour);
+          } else {
+            // Use static fallback data if no Sanity data
+            console.log("Using static fallback data for slug:", slug);
+            const staticTours = [
+              {
+                _id: "1",
+                title: "Brooklyn Beach Resort Tour",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "brooklyn-beach-resort-tour" },
+                img: "/assets/img/destination/01.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "2",
+                title: "Pak Chumphon Town Tour",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "pak-chumphon-town-tour" },
+                img: "/assets/img/destination/02.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "3",
+                title: "Java & Bali One Life Adventure",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "java-bali-adventure" },
+                img: "/assets/img/destination/03.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "4",
+                title: "Places To Travel In November",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "november-travel" },
+                img: "/assets/img/destination/04.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "5",
+                title: "Brooklyn Beach Resort Tour 2",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "brooklyn-beach-resort-tour-2" },
+                img: "/assets/img/destination/05.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "6",
+                title: "Pak Chumphon Town Tour 2",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "pak-chumphon-town-tour-2" },
+                img: "/assets/img/destination/06.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "7",
+                title: "Java & Bali One Life Adventure 2",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "java-bali-adventure-2" },
+                img: "/assets/img/destination/07.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "8",
+                title: "Places To Travel In November 2",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "november-travel-2" },
+                img: "/assets/img/destination/08.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "9",
+                title: "Places To Travel In November 3",
+                location: "Indonesia",
+                price: "$59.00",
+                priceUnit: "/Per day",
+                slug: { current: "november-travel-3" },
+                img: "/assets/img/destination/04.jpg",
+                mainImage: null,
+              },
+              {
+                _id: "10",
+                title: "Test Tour 2",
+                location: "Test Location",
+                price: "$99.00",
+                priceUnit: "/Per day",
+                slug: { current: "test2" },
+                img: "/assets/img/destination/01.jpg",
+                mainImage: null,
+              },
+            ];
+            const staticTour = staticTours.find((t) => t.slug.current === slug);
+            if (staticTour) {
+              console.log("Using static tour data:", staticTour);
+              setTour(staticTour);
+            } else {
+              setTour(null);
+            }
+          }
+        } else {
+          setTour(data);
+        }
       } catch (e) {
         setError(e.message);
       } finally {
@@ -83,37 +211,165 @@ const TourDetails = ({ slug }) => {
     );
   }
 
+  // Show error state if no tour is found
+  if (!tour) {
+    return (
+      <section className="activities-details-section fix section-padding">
+        <div className="container">
+          <div className="text-center py-5">
+            <h3>Tour not found</h3>
+            <p className="mt-3">The tour you're looking for doesn't exist or has been removed.</p>
+            {error && (
+              <div className="alert alert-warning mt-3">
+                <small>Error: {error}</small>
+              </div>
+            )}
+            <Link to="/tour" className="theme-btn mt-3">
+              Back to Tours <i className="bi bi-arrow-right"></i>
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="activities-details-section fix section-padding">
+      {/* WhatsApp Floating Button */}
+      <div className="whatsapp-float" onClick={() => window.open("https://wa.me/1234567890", "_blank")}>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
+        </svg>
+      </div>
+
       <div className="container">
         <div className="activities-details-wrapper">
           <div className="row g-4 justify-content-center">
             <div className="col-12 col-lg-8">
               <div className="details-thumb">
-                <img src={tour?.mainImage ? urlFor(tour.mainImage).width(1200).height(700).url() : "/assets/img/destails/tour-details.jpg"} alt={tour?.title || "img"} />
+                <img
+                  src={(() => {
+                    if (tour?.mainImage) {
+                      try {
+                        return urlFor(tour.mainImage).width(1200).height(700).url();
+                      } catch (error) {
+                        console.log("Error generating Sanity image URL:", error);
+                        return tour?.img || "/assets/img/destails/tour-details.jpg";
+                      }
+                    }
+                    return tour?.img || "/assets/img/destails/tour-details.jpg";
+                  })()}
+                  alt={tour?.title || "Tour Image"}
+                  onError={(e) => {
+                    console.log("Image failed to load, using fallback");
+                    e.target.src = "/assets/img/destails/tour-details.jpg";
+                  }}
+                  onLoad={() => {
+                    console.log("Image loaded successfully");
+                  }}
+                />
                 <ul className="image-list">
-                  <li>
-                    <img src="/assets/img/destails/tour-details-2.jpg" alt="img" />
-                  </li>
-                  <li>
-                    <img src="/assets/img/destails/tour-details-3.jpg" alt="img" />
-                  </li>
-                  <li>
-                    <img src="/assets/img/destails/tour-details-4.jpg" alt="img" />
-                  </li>
+                  {tour?.galleryImages && tour.galleryImages.length > 0 ? (
+                    tour.galleryImages.slice(0, 3).map((galleryImage, index) => (
+                      <li key={index}>
+                        <img src={urlFor(galleryImage).width(300).height(200).url()} alt={galleryImage.alt || `Tour gallery ${index + 1}`} />
+                      </li>
+                    ))
+                  ) : (
+                    // Fallback to static images if no gallery images
+                    <>
+                      <li>
+                        <img src="/assets/img/destails/tour-details-2.jpg" alt="Tour gallery 1" />
+                      </li>
+                      <li>
+                        <img src="/assets/img/destails/tour-details-3.jpg" alt="Tour gallery 2" />
+                      </li>
+                      <li>
+                        <img src="/assets/img/destails/tour-details-4.jpg" alt="Tour gallery 3" />
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
               <div className="activities-details-content">
                 <h2 className="mb-3">{tour?.title || "Ghorepani Poon Hill Trek"}</h2>
-                <p>
-                  Consectetur adipisicing elit sed do eiusmod tempor is incididunt ut labore et dolore of magna aliqua. ut enim ad minim veniam made of owl the quis nostrud
-                  exercitation ullamco laboris nisi ut aliquip ex ea dolor commodo consequat duis aute irure and dolor in reprehenderit.Nullam semper quam mauris nec mollis felis
-                  aliquam eu ut non gravida mi quam mauris nec mollis felis aliquam phasellus.
-                </p>
-                <p className="mt-3">
-                  Consectetur adipisicing elit sed do eiusmod tempor is incididunt ut labore et dolore of magna aliqua. ut enim ad minim veniam made of owl the quis nostrud
-                  exercitation ullamco laboris nisi ut aliquip ex ea dolor commodo consequat duis aute irure and dolor in reprehenderit.Nullam semper quam mauris.
-                </p>
+                <div className="tour-description">
+                  {/* Short Description */}
+                  {tour?.description && (
+                    <p className="mb-3">
+                      <strong>Overview:</strong> {tour.description}
+                    </p>
+                  )}
+
+                  {/* Detailed Description */}
+                  {tour?.detailedDescription && tour.detailedDescription.length > 0 ? (
+                    <div className="detailed-content">
+                      <h4 className="mb-3">Detailed Information</h4>
+                      {tour.detailedDescription.map((block, index) => {
+                        if (block._type === "block") {
+                          const text = block.children?.map((child) => child.text).join("") || "";
+                          if (text.trim()) {
+                            switch (block.style) {
+                              case "h2":
+                                return (
+                                  <h2 key={index} className="mb-3">
+                                    {text}
+                                  </h2>
+                                );
+                              case "h3":
+                                return (
+                                  <h3 key={index} className="mb-2">
+                                    {text}
+                                  </h3>
+                                );
+                              case "blockquote":
+                                return (
+                                  <blockquote key={index} className="blockquote mb-3">
+                                    <p>{text}</p>
+                                  </blockquote>
+                                );
+                              default:
+                                return (
+                                  <p key={index} className="mb-3">
+                                    {text}
+                                  </p>
+                                );
+                            }
+                          }
+                        }
+                        return null;
+                      })}
+                    </div>
+                  ) : (
+                    <div className="detailed-content">
+                      <h4 className="mb-3">About This Tour</h4>
+                      <p>
+                        Consectetur adipisicing elit sed do eiusmod tempor is incididunt ut labore et dolore of magna aliqua. ut enim ad minim veniam made of owl the quis nostrud
+                        exercitation ullamco laboris nisi ut aliquip ex ea dolor commodo consequat duis aute irure and dolor in reprehenderit.Nullam semper quam mauris nec mollis
+                        felis aliquam eu ut non gravida mi quam mauris nec mollis felis aliquam phasellus.
+                      </p>
+                      <p className="mt-3">
+                        Consectetur adipisicing elit sed do eiusmod tempor is incididunt ut labore et dolore of magna aliqua. ut enim ad minim veniam made of owl the quis nostrud
+                        exercitation ullamco laboris nisi ut aliquip ex ea dolor commodo consequat duis aute irure and dolor in reprehenderit.Nullam semper quam mauris.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                {tour?.highlights && tour.highlights.length > 0 && (
+                  <div className="tour-highlights mb-4">
+                    <h3>Tour Highlights</h3>
+                    <div className="highlights-list">
+                      <ul className="list-unstyled">
+                        {tour.highlights.map((highlight, index) => (
+                          <li key={index} className="mb-2">
+                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                            {highlight}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
                 <div className="activities-list-item">
                   <h3>Experience the Difference</h3>
                   <div className="activities-item">
@@ -232,8 +488,8 @@ const TourDetails = ({ slug }) => {
                         <img src="/assets/img/icon/27.svg" alt="img" />
                       </div>
                       <div className="content">
-                        <span>Accommodation</span>
-                        <h6>5 Stare Hotel</h6>
+                        <span>Duration</span>
+                        <h6>{tour?.duration || "10 Days"}</h6>
                       </div>
                     </div>
                     <div className="activities-box-item style-2">
@@ -241,8 +497,8 @@ const TourDetails = ({ slug }) => {
                         <img src="/assets/img/icon/28.svg" alt="img" />
                       </div>
                       <div className="content">
-                        <span>Admission Free</span>
-                        <h6>No</h6>
+                        <span>Max Participants</span>
+                        <h6>{tour?.maxParticipants || "50+"}</h6>
                       </div>
                     </div>
                     <div className="activities-box-item">
@@ -250,8 +506,8 @@ const TourDetails = ({ slug }) => {
                         <img src="/assets/img/icon/29.svg" alt="img" />
                       </div>
                       <div className="content">
-                        <span>Arrival City</span>
-                        <h6>London</h6>
+                        <span>Location</span>
+                        <h6>{tour?.location || "Various"}</h6>
                       </div>
                     </div>
                     <div className="activities-box-item">
@@ -259,8 +515,8 @@ const TourDetails = ({ slug }) => {
                         <img src="/assets/img/icon/30.svg" alt="img" />
                       </div>
                       <div className="content">
-                        <span>Language</span>
-                        <h6>English</h6>
+                        <span>Difficulty</span>
+                        <h6>{tour?.difficulty ? tour.difficulty.charAt(0).toUpperCase() + tour.difficulty.slice(1) : "Moderate"}</h6>
                       </div>
                     </div>
                   </div>
