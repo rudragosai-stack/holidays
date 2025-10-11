@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import loadBackgroudImages from "../Common/loadBackgroudImages";
 import { Link } from "react-router";
-import { urlFor, fetchData, queries } from "../../lib/sanity";
+import { urlFor } from "../../lib/sanity";
 
 const TourDetails = ({ slug }) => {
   const [tour, setTour] = useState(null);
@@ -16,8 +16,10 @@ const TourDetails = ({ slug }) => {
           setLoading(false);
           return;
         }
-        const data = await fetchData(queries.getTourBySlug, { slug });
-        setTour(data || null);
+        const encoded = encodeURIComponent(`*[_type == "tour" && slug.current == "${slug}"][0]{..., mainImage, slug}`);
+        const response = await fetch(`/api/v2024-01-01/data/query/production?query=${encoded}`);
+        const apiData = await response.json();
+        setTour(apiData.result || null);
       } catch (e) {
         setError(e.message);
       } finally {

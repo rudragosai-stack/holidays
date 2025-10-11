@@ -8,9 +8,12 @@ export const client = createClient({
   dataset: sanityConfig.dataset,
   useCdn: sanityConfig.useCdn,
   apiVersion: sanityConfig.apiVersion,
-  // Use Sanity's CDN directly - no proxy needed
-  token: undefined, // No token needed for public read access
-  ignoreBrowserTokenWarning: true, // Suppress browser token warning
+  // Use proxy in development to avoid CORS issues
+  ...(import.meta.env.DEV && {
+    apiHost: "/api",
+  }),
+  // Add token if needed for private datasets
+  // token: process.env.SANITY_API_TOKEN,
 });
 
 // Image URL builder
@@ -38,24 +41,10 @@ export const queries = {
 // Helper function to fetch data
 export const fetchData = async (query, params = {}) => {
   try {
-    console.log("Fetching data with query:", query);
-    console.log("Sanity client config:", {
-      projectId: sanityConfig.projectId,
-      dataset: sanityConfig.dataset,
-      apiVersion: sanityConfig.apiVersion,
-      useCdn: sanityConfig.useCdn,
-    });
-
     const data = await client.fetch(query, params);
-    console.log("Data fetched successfully:", data);
     return data;
   } catch (error) {
-    console.error("Error fetching data:", error);
-    console.error("Error details:", {
-      message: error.message,
-      status: error.status,
-      statusCode: error.statusCode,
-    });
+    console.error("Error fetching data from Sanity:", error);
     return [];
   }
 };

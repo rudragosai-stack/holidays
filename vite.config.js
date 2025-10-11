@@ -9,6 +9,7 @@ export default defineConfig({
       "/api": {
         target: "https://v488knj2.api.sanity.io",
         changeOrigin: true,
+        secure: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },

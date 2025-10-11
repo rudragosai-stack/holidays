@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import loadBackgroudImages from "../Common/loadBackgroudImages";
 import { urlFor, fetchData, queries } from "../../lib/sanity";
+import { sanityConfig } from "../../lib/config";
 
 const HeroBanner2 = () => {
   const [slides, setSlides] = useState([]);
@@ -13,8 +14,19 @@ const HeroBanner2 = () => {
       try {
         setLoading(true);
 
-        // Fetch hero banners from Sanity using the client
-        const data = await fetchData(queries.getHeroBanners);
+        // Fetch hero banners from Sanity using direct API call
+        const query = `*[_type == "heroBanner" && isActive == true] | order(order asc)`;
+        const encodedQuery = encodeURIComponent(query);
+        const apiUrl = `/api/v2024-01-01/data/query/production?query=${encodedQuery}`;
+
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const apiData = await response.json();
+        const data = apiData.result || [];
 
         // Transform Sanity data to match the expected format
         const transformedSlides = data.map((banner) => ({
