@@ -16,7 +16,7 @@ const Footer1 = () => {
           <div className="col-lg-2 col-md-6 mb-4">
             <div style={{ marginBottom: "20px" }}>
               <div style={{ marginBottom: "20px" }}>
-                <img src="/mainimage/logo3.png" alt="Logo" style={{ height: "50px", width: "auto" }} />
+                <img src="/mainimage/logo3.png" alt="Logo"  />
               </div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <a
