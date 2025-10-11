@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Nav from "./Nav";
-import logoImage from "/mainimage/logo3.png";
 export default function Header1({ variant }) {
   const [mobileToggle, setMobileToggle] = useState(false);
   const [isSticky, setIsSticky] = useState();
@@ -40,7 +39,7 @@ export default function Header1({ variant }) {
             <div className="cs_main_header_in">
               <div className="cs_main_header_left">
                 <Link className="cs_site_branding" to="/" href="/">
-                  <img src={logoImage} alt="Logo" style={{ height: "50px", width: "auto" }} />
+                  <img src="/mainimage/logo3.png" alt="Logo" style={{ height: "50px", width: "auto" }} />
                 </Link>
               </div>
               <div className="cs_main_header_center">
