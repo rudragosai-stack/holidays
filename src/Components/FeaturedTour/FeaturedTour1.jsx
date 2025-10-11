@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import Slider from "react-slick";
 import parse from "html-react-parser";
 import { Link } from "react-router";
-import { urlFor } from "../../lib/sanity";
+import { urlFor, fetchData, queries } from "../../lib/sanity";
 
 const FeaturedTour1 = () => {
   const [tours, setTours] = useState([]);
@@ -14,12 +14,8 @@ const FeaturedTour1 = () => {
       try {
         setLoading(true);
 
-        // Fetch featured tours from Sanity
-        const response = await fetch(
-          "/api/v2024-01-01/data/query/production?query=*%5B_type+%3D%3D+%22tour%22+%26%26+isActive+%3D%3D+true+%26%26+featured+%3D%3D+true%5D+%7C+order%28order+asc%29"
-        );
-        const apiData = await response.json();
-        const data = apiData.result || [];
+        // Fetch featured tours from Sanity using the client
+        const data = await fetchData(queries.getFeaturedTours);
 
         // Transform Sanity data to match the expected format
         const transformedTours = data.map((tour) => ({

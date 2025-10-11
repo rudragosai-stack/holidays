@@ -3,7 +3,7 @@ export const sanityConfig = {
   projectId: "v488knj2", // Updated with your new project ID
   dataset: "production",
   apiVersion: "2024-01-01",
-  useCdn: false, // Set to false to get fresh data
+  useCdn: true, // Use CDN for better performance and CORS handling
 };
 
 // You can also set these as environment variables:
