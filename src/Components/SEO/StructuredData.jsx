@@ -77,7 +77,7 @@ export const getTourSchema = (tour) => ({
   offers: {
     "@type": "Offer",
     price: tour.price || "0",
-    priceCurrency: tour.currency || "USD",
+    priceCurrency: tour.currency || "INR",
     availability: "https://schema.org/InStock",
     validFrom: tour.startDate || new Date().toISOString().split("T")[0],
     validThrough: tour.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
@@ -171,7 +171,7 @@ export const getLocalBusinessSchema = () => ({
       closes: "16:00",
     },
   ],
-  priceRange: "$$",
+  priceRange: "₹₹",
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: "4.8",

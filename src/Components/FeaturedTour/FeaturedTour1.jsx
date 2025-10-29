@@ -14,8 +14,8 @@ const FeaturedTour1 = () => {
       try {
         setLoading(true);
 
-        // Fetch featured tours from Sanity
-        const data = await fetchData(queries.getFeaturedTours);
+        // Fetch featured tours from Sanity (including domestic, international, and legacy tours)
+        const data = await fetchData(queries.getFeaturedToursCombined);
 
         // Transform Sanity data to match the expected format
         const transformedTours = data.map((tour) => ({
@@ -25,6 +25,7 @@ const FeaturedTour1 = () => {
           price: tour.price,
           priceUnit: tour.priceUnit || "/Per day",
           slug: tour.slug?.current || "tour-details",
+          tourType: tour._type, // Add tour type for identification
         }));
 
         setTours(transformedTours);
@@ -38,7 +39,7 @@ const FeaturedTour1 = () => {
             img: "/mainimage/austria.jpg",
             location: "Nederland",
             title: "Best Time Ever to Explore <br>Molinas Nature",
-            price: "$49.00",
+            price: "INR 49.00",
             priceUnit: "/Per day",
             slug: "tour-details",
           },
@@ -46,7 +47,7 @@ const FeaturedTour1 = () => {
             img: "/mainimage/thailand.jpg",
             location: "Nederland",
             title: "Best Time Ever to Explore <br>Molinas Nature",
-            price: "$49.00",
+            price: "INR 49.00",
             priceUnit: "/Per day",
             slug: "tour-details",
           },
@@ -54,7 +55,7 @@ const FeaturedTour1 = () => {
             img: "/mainimage/austria.jpg",
             location: "Nederland",
             title: "Best Time Ever to Explore <br>Molinas Nature",
-            price: "$49.00",
+            price: "INR 49.00",
             priceUnit: "/Per day",
             slug: "tour-details",
           },
@@ -62,7 +63,7 @@ const FeaturedTour1 = () => {
             img: "/mainimage/thailand.jpg",
             location: "Nederland",
             title: "Best Time Ever to Explore <br>Molinas Nature",
-            price: "$49.00",
+            price: "INR 49.00",
             priceUnit: "/Per day",
             slug: "tour-details",
           },
@@ -70,7 +71,7 @@ const FeaturedTour1 = () => {
             img: "/mainimage/austria.jpg",
             location: "Nederland",
             title: "Best Time Ever to Explore <br>Molinas Nature",
-            price: "$49.00",
+            price: "INR 49.00",
             priceUnit: "/Per day",
             slug: "tour-details",
           },

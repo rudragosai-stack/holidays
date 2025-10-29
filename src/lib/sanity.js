@@ -28,11 +28,24 @@ export const queries = {
   getCounters: `*[_type == "counter" && isActive == true] | order(order asc)`,
   getAllCounters: `*[_type == "counter"] | order(order asc)`,
 
-  // Tours
-  getTours: `*[_type == "tour" && isActive == true] | order(order asc)`,
-  getFeaturedTours: `*[_type == "tour" && isActive == true && featured == true] | order(order asc)`,
-  getAllTours: `*[_type == "tour"] | order(order asc)`,
-  getTourBySlug: `*[_type == "tour" && slug.current == $slug][0]`,
+  // Domestic Tours
+  getDomesticTours: `*[_type == "domesticTour" && isActive == true] | order(order asc)`,
+  getFeaturedDomesticTours: `*[_type == "domesticTour" && isActive == true && featured == true] | order(order asc)`,
+  getAllDomesticTours: `*[_type == "domesticTour"] | order(order asc)`,
+  getDomesticTourBySlug: `*[_type == "domesticTour" && slug.current == $slug][0]`,
+
+  // International Tours
+  getInternationalTours: `*[_type == "internationalTour" && isActive == true] | order(order asc)`,
+  getFeaturedInternationalTours: `*[_type == "internationalTour" && isActive == true && featured == true] | order(order asc)`,
+  getAllInternationalTours: `*[_type == "internationalTour"] | order(order asc)`,
+  getInternationalTourBySlug: `*[_type == "internationalTour" && slug.current == $slug][0]`,
+
+  // Combined Tours (for displaying both types together)
+  getAllToursCombined: `*[_type in ["domesticTour", "internationalTour"] && isActive == true] | order(order asc)`,
+  getFeaturedToursCombined: `*[_type in ["domesticTour", "internationalTour"] && isActive == true && featured == true] | order(order asc)`,
+
+  // Get tour by slug from any tour type (including benefits field which is used in Sanity)
+  getAnyTourBySlug: `*[_type in ["domesticTour", "internationalTour"] && slug.current == $slug][0]`,
 };
 
 // Helper function to fetch data

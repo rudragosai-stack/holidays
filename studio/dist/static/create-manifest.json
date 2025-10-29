@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "createdAt": "2025-10-11T05:35:32.563Z",
+  "createdAt": "2025-10-29T06:05:21.712Z",
   "workspaces": [
     {
       "name": "turmet-travel-agency",
@@ -12,7 +12,7 @@
       "mediaLibrary": {
         "enabled": false
       },
-      "schema": "ae8afc34.create-schema.json",
+      "schema": "7d6b4085.create-schema.json",
       "tools": "7cd9a0d5.create-tools.json"
     }
   ]

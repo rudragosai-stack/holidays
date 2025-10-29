@@ -35,6 +35,14 @@ export const router = createBrowserRouter([
         Component: TourPage,
       },
       {
+        path: "/tour/domestic",
+        Component: TourPage,
+      },
+      {
+        path: "/tour/international",
+        Component: TourPage,
+      },
+      {
         path: "/tour/tour-details",
         Component: TourDetailsPage,
       },

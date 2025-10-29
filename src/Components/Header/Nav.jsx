@@ -15,7 +15,25 @@ export default function Nav({ setMobileToggle }) {
           About Us
         </Link>
       </li>
-
+      <li className="menu-item-has-children">
+        <Link to="/tour" onClick={() => setMobileToggle(false)}>
+          Tour
+        </Link>
+        <DropDown>
+          <ul>
+            <li>
+              <Link to="/tour/domestic" onClick={() => setMobileToggle(false)}>
+                Domestic
+              </Link>
+            </li>
+            <li>
+              <Link to="/tour/international" onClick={() => setMobileToggle(false)}>
+                International
+              </Link>
+            </li>
+          </ul>
+        </DropDown>
+      </li>
       <li className="menu-item-has-children">
         <Link to="/destination" onClick={() => setMobileToggle(false)}>
           Destination
@@ -30,26 +48,6 @@ export default function Nav({ setMobileToggle }) {
             <li>
               <Link to="/destination/destination-details" onClick={() => setMobileToggle(false)}>
                 Destination Details
-              </Link>
-            </li>
-          </ul>
-        </DropDown>
-      </li>
-
-      <li className="menu-item-has-children">
-        <Link to="/tour" onClick={() => setMobileToggle(false)}>
-          Tour
-        </Link>
-        <DropDown>
-          <ul>
-            <li>
-              <Link to="/tour" onClick={() => setMobileToggle(false)}>
-                Tour
-              </Link>
-            </li>
-            <li>
-              <Link to="/tour/tour-details" onClick={() => setMobileToggle(false)}>
-                Tour Details
               </Link>
             </li>
           </ul>

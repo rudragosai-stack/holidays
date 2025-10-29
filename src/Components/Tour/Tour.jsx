@@ -2,18 +2,60 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { urlFor, fetchData, queries } from "../../lib/sanity";
 
-const Tour = () => {
+const Tour = ({ tourType = "all" }) => {
   const [tours, setTours] = useState([]);
+  const [filteredTours, setFilteredTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    locations: [],
+    activities: [],
+    tourTypes: [],
+  });
+
+  // Get unique values from tours for filters
+  const getUniqueLocations = (tours) => {
+    const locations = [...new Set(tours.map((tour) => tour.location))];
+    return locations.map((location) => ({
+      name: location,
+      count: tours.filter((tour) => tour.location === location).length,
+    }));
+  };
+
+  const getUniqueActivities = (tours) => {
+    const allHighlights = tours.flatMap((tour) => tour.highlights || []);
+    const uniqueHighlights = [...new Set(allHighlights)];
+    return uniqueHighlights.map((highlight) => ({
+      name: highlight,
+      count: tours.filter((tour) => tour.highlights?.includes(highlight)).length,
+    }));
+  };
+
+  const getTourTypes = (tours) => {
+    const types = [
+      { name: "Easy", value: "easy", count: tours.filter((tour) => tour.difficulty === "easy").length },
+      { name: "Moderate", value: "moderate", count: tours.filter((tour) => tour.difficulty === "moderate").length },
+      { name: "Challenging", value: "challenging", count: tours.filter((tour) => tour.difficulty === "challenging").length },
+      { name: "Expert", value: "expert", count: tours.filter((tour) => tour.difficulty === "expert").length },
+    ];
+    return types.filter((type) => type.count > 0);
+  };
 
   useEffect(() => {
     const loadTours = async () => {
       try {
         setLoading(true);
 
-        // Fetch tours from Sanity
-        const data = await fetchData(queries.getTours);
+        // Fetch tours from Sanity based on tour type
+        let data;
+        if (tourType === "domestic") {
+          data = await fetchData(queries.getDomesticTours);
+        } else if (tourType === "international") {
+          data = await fetchData(queries.getInternationalTours);
+        } else {
+          // Show all tours (domestic + international)
+          data = await fetchData(queries.getAllToursCombined);
+        }
 
         // Transform Sanity data to match the expected format
         const transformedTours = data.map((tour) => ({
@@ -28,9 +70,18 @@ const Tour = () => {
           slug: tour.slug?.current || "tour-details",
           difficulty: tour.difficulty,
           highlights: tour.highlights,
+          tourType: tour._type, // Add tour type for identification
         }));
 
         setTours(transformedTours);
+        setFilteredTours(transformedTours);
+
+        // Update filter options based on tour data
+        setFilters({
+          locations: getUniqueLocations(transformedTours),
+          activities: getUniqueActivities(transformedTours),
+          tourTypes: getTourTypes(transformedTours),
+        });
       } catch (err) {
         console.error("Error loading tours:", err);
         setError(err.message);
@@ -44,7 +95,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "brooklyn-beach-resort-tour",
           },
@@ -55,7 +106,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "pak-chumphon-town-tour",
           },
@@ -66,7 +117,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "java-bali-adventure",
           },
@@ -77,7 +128,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "november-travel",
           },
@@ -88,7 +139,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "brooklyn-beach-resort-tour-2",
           },
@@ -99,7 +150,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "pak-chumphon-town-tour-2",
           },
@@ -110,7 +161,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "java-bali-adventure-2",
           },
@@ -121,7 +172,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "november-travel-2",
           },
@@ -132,7 +183,7 @@ const Tour = () => {
             rating: "4.7",
             day: "10 Days",
             number: "50+",
-            price: "$59.00",
+            price: "INR 59.00",
             priceUnit: "/Per day",
             slug: "november-travel-3",
           },
@@ -143,7 +194,54 @@ const Tour = () => {
     };
 
     loadTours();
-  }, []);
+  }, [tourType]);
+
+  // Filter handling functions
+  const handleLocationFilter = (location) => {
+    setFilters((prev) => ({
+      ...prev,
+      locations: prev.locations.map((loc) => (loc.name === location ? { ...loc, selected: !loc.selected } : loc)),
+    }));
+  };
+
+  const handleActivityFilter = (activity) => {
+    setFilters((prev) => ({
+      ...prev,
+      activities: prev.activities.map((act) => (act.name === activity ? { ...act, selected: !act.selected } : act)),
+    }));
+  };
+
+  const handleTourTypeFilter = (tourType) => {
+    setFilters((prev) => ({
+      ...prev,
+      tourTypes: prev.tourTypes.map((type) => (type.value === tourType ? { ...type, selected: !type.selected } : type)),
+    }));
+  };
+
+  // Apply filters whenever filters change
+  useEffect(() => {
+    let filtered = [...tours];
+
+    // Filter by locations
+    const selectedLocations = filters.locations.filter((loc) => loc.selected).map((loc) => loc.name);
+    if (selectedLocations.length > 0) {
+      filtered = filtered.filter((tour) => selectedLocations.includes(tour.location));
+    }
+
+    // Filter by activities
+    const selectedActivities = filters.activities.filter((act) => act.selected).map((act) => act.name);
+    if (selectedActivities.length > 0) {
+      filtered = filtered.filter((tour) => tour.highlights && tour.highlights.some((highlight) => selectedActivities.includes(highlight)));
+    }
+
+    // Filter by tour types (difficulty)
+    const selectedTourTypes = filters.tourTypes.filter((type) => type.selected).map((type) => type.value);
+    if (selectedTourTypes.length > 0) {
+      filtered = filtered.filter((tour) => selectedTourTypes.includes(tour.difficulty));
+    }
+
+    setFilteredTours(filtered);
+  }, [filters, tours]);
 
   // Show loading state
   if (loading) {
@@ -193,7 +291,7 @@ const Tour = () => {
           <div className="row g-4">
             <div className="col-xl-9">
               <div className="row g-4">
-                {tours.map((item, i) => (
+                {filteredTours.map((item, i) => (
                   <div key={item._id || i} className="col-xl-4 col-lg-4 col-md-6 wow fadeInUp wow" data-wow-delay=".3s">
                     <div className="destination-card-items mt-0">
                       <div className="destination-image">
@@ -274,71 +372,48 @@ const Tour = () => {
             </div>
             <div className="col-xl-3">
               <div className="main-sidebar mt-0">
+                {/* Results Summary */}
+                <div className="single-sidebar-widget mb-4">
+                  <div className="wid-title">
+                    <h3>Filter Results</h3>
+                  </div>
+                  <div className="filter-summary">
+                    <p className="mb-2">
+                      <strong>{filteredTours.length}</strong> of <strong>{tours.length}</strong> tours
+                    </p>
+                    {(filters.locations.some((loc) => loc.selected) || filters.activities.some((act) => act.selected) || filters.tourTypes.some((type) => type.selected)) && (
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => {
+                          setFilters({
+                            locations: filters.locations.map((loc) => ({ ...loc, selected: false })),
+                            activities: filters.activities.map((act) => ({ ...act, selected: false })),
+                            tourTypes: filters.tourTypes.map((type) => ({ ...type, selected: false })),
+                          });
+                        }}
+                      >
+                        Clear All Filters
+                      </button>
+                    )}
+                  </div>
+                </div>
                 <div className="single-sidebar-widget">
                   <div className="wid-title">
                     <h3>Destination Category</h3>
                   </div>
                   <div className="categories-list">
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
+                    {filters.locations.map((location, index) => (
+                      <label key={index} className="checkbox-single d-flex justify-content-between align-items-center">
+                        <span className="d-flex gap-xl-3 gap-2 align-items-center">
+                          <span className="checkbox-area d-center">
+                            <input type="checkbox" checked={location.selected || false} onChange={() => handleLocationFilter(location.name)} />
+                            <span className="checkmark d-center"></span>
+                          </span>
+                          <span className="text-color">{location.name}</span>
                         </span>
-                        <span className="text-color">Canada</span>
-                      </span>
-                      <span className="text-color">04</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Europe</span>
-                      </span>
-                      <span className="text-color">03</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">France</span>
-                      </span>
-                      <span className="text-color">05</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Indonesia</span>
-                      </span>
-                      <span className="text-color">06</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Nepal</span>
-                      </span>
-                      <span className="text-color">05</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Maldives</span>
-                      </span>
-                      <span className="text-color">04</span>
-                    </label>
+                        <span className="text-color">{location.count}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
@@ -347,104 +422,38 @@ const Tour = () => {
                     <h3>Activities</h3>
                   </div>
                   <div className="categories-list">
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" readOnly />
-                          <span className="checkmark d-center"></span>
+                    {filters.activities.map((activity, index) => (
+                      <label key={index} className="checkbox-single d-flex justify-content-between align-items-center">
+                        <span className="d-flex gap-xl-3 gap-2 align-items-center">
+                          <span className="checkbox-area d-center">
+                            <input type="checkbox" checked={activity.selected || false} onChange={() => handleActivityFilter(activity.name)} />
+                            <span className="checkmark d-center"></span>
+                          </span>
+                          <span className="text-color">{activity.name}</span>
                         </span>
-                        <span className="text-color">Canada</span>
-                      </span>
-                      <span className="text-color">04</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Europe</span>
-                      </span>
-                      <span className="text-color">03</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">France</span>
-                      </span>
-                      <span className="text-color">05</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Indonesia</span>
-                      </span>
-                      <span className="text-color">06</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Nepal</span>
-                      </span>
-                      <span className="text-color">05</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Maldives</span>
-                      </span>
-                      <span className="text-color">04</span>
-                    </label>
+                        <span className="text-color">{activity.count}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
                 <div className="single-sidebar-widget">
                   <div className="wid-title style-2">
-                    <h3>Tour Types</h3>
+                    <h3>Difficulty Level</h3>
                     <i className="fa-solid fa-chevron-down"></i>
                   </div>
                   <div className="categories-list">
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
+                    {filters.tourTypes.map((type, index) => (
+                      <label key={index} className="checkbox-single d-flex justify-content-between align-items-center">
+                        <span className="d-flex gap-xl-3 gap-2 align-items-center">
+                          <span className="checkbox-area d-center">
+                            <input type="checkbox" checked={type.selected || false} onChange={() => handleTourTypeFilter(type.value)} />
+                            <span className="checkmark d-center"></span>
+                          </span>
+                          <span className="text-color">{type.name}</span>
                         </span>
-                        <span className="text-color">Premium</span>
-                      </span>
-                      <span className="text-color">04</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Luxury</span>
-                      </span>
-                      <span className="text-color">03</span>
-                    </label>
-                    <label className="checkbox-single d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                        <span className="checkbox-area d-center">
-                          <input type="checkbox" />
-                          <span className="checkmark d-center"></span>
-                        </span>
-                        <span className="text-color">Standard</span>
-                      </span>
-                      <span className="text-color">05</span>
-                    </label>
+                        <span className="text-color">{type.count}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               </div>

@@ -7,6 +7,7 @@ const TourDetails = ({ slug }) => {
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeImageUrl, setActiveImageUrl] = useState(null);
 
   useEffect(() => {
     const fetchTour = async () => {
@@ -16,16 +17,18 @@ const TourDetails = ({ slug }) => {
           setLoading(false);
           return;
         }
-        const data = await fetchData(queries.getTourBySlug, { slug });
+        // Try to get tour from any tour type (domestic, international, or legacy tour)
+        const data = await fetchData(queries.getAnyTourBySlug, { slug });
         console.log("Fetched tour data:", data);
         console.log("Tour mainImage:", data?.mainImage);
+        console.log("Tour type:", data?._type);
         console.log("Full tour object keys:", data ? Object.keys(data) : "No data");
         console.log("Image URL attempt:", data?.mainImage ? urlFor(data.mainImage).width(1200).height(700).url() : "No mainImage");
 
-        // If no tour data found, try to get from tour listing as fallback
+        // If no tour data found, try to get from combined tour listing as fallback
         if (!data || (Array.isArray(data) && data.length === 0)) {
           console.log("No tour data found, trying fallback...");
-          const allTours = await fetchData(queries.getTours);
+          const allTours = await fetchData(queries.getAllToursCombined);
           const fallbackTour = allTours.find((t) => t.slug?.current === slug);
           if (fallbackTour) {
             console.log("Found fallback tour:", fallbackTour);
@@ -38,7 +41,7 @@ const TourDetails = ({ slug }) => {
                 _id: "1",
                 title: "Brooklyn Beach Resort Tour",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "brooklyn-beach-resort-tour" },
                 img: "/assets/img/destination/01.jpg",
@@ -48,7 +51,7 @@ const TourDetails = ({ slug }) => {
                 _id: "2",
                 title: "Pak Chumphon Town Tour",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "pak-chumphon-town-tour" },
                 img: "/assets/img/destination/02.jpg",
@@ -58,7 +61,7 @@ const TourDetails = ({ slug }) => {
                 _id: "3",
                 title: "Java & Bali One Life Adventure",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "java-bali-adventure" },
                 img: "/assets/img/destination/03.jpg",
@@ -68,7 +71,7 @@ const TourDetails = ({ slug }) => {
                 _id: "4",
                 title: "Places To Travel In November",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "november-travel" },
                 img: "/assets/img/destination/04.jpg",
@@ -78,7 +81,7 @@ const TourDetails = ({ slug }) => {
                 _id: "5",
                 title: "Brooklyn Beach Resort Tour 2",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "brooklyn-beach-resort-tour-2" },
                 img: "/assets/img/destination/05.jpg",
@@ -88,7 +91,7 @@ const TourDetails = ({ slug }) => {
                 _id: "6",
                 title: "Pak Chumphon Town Tour 2",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "pak-chumphon-town-tour-2" },
                 img: "/assets/img/destination/06.jpg",
@@ -98,7 +101,7 @@ const TourDetails = ({ slug }) => {
                 _id: "7",
                 title: "Java & Bali One Life Adventure 2",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "java-bali-adventure-2" },
                 img: "/assets/img/destination/07.jpg",
@@ -108,7 +111,7 @@ const TourDetails = ({ slug }) => {
                 _id: "8",
                 title: "Places To Travel In November 2",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "november-travel-2" },
                 img: "/assets/img/destination/08.jpg",
@@ -118,7 +121,7 @@ const TourDetails = ({ slug }) => {
                 _id: "9",
                 title: "Places To Travel In November 3",
                 location: "Indonesia",
-                price: "$59.00",
+                price: "INR 59.00",
                 priceUnit: "/Per day",
                 slug: { current: "november-travel-3" },
                 img: "/assets/img/destination/04.jpg",
@@ -128,7 +131,7 @@ const TourDetails = ({ slug }) => {
                 _id: "10",
                 title: "Test Tour 2",
                 location: "Test Location",
-                price: "$99.00",
+                price: "INR 99.00",
                 priceUnit: "/Per day",
                 slug: { current: "test2" },
                 img: "/assets/img/destination/01.jpg",
@@ -159,6 +162,11 @@ const TourDetails = ({ slug }) => {
     loadBackgroudImages();
   }, [tour]);
 
+  // Reset active image when tour changes
+  useEffect(() => {
+    setActiveImageUrl(null);
+  }, [tour]);
+
   const faqContent = [
     {
       title: "How do I book a tour with your agency?",
@@ -182,6 +190,34 @@ const TourDetails = ({ slug }) => {
   const [openItemIndex, setOpenItemIndex] = useState(-1);
   const [firstItemOpen, setFirstItemOpen] = useState(true);
 
+  // Helper intentionally unused here; kept for future use when rendering prices in this component
+  const FORMAT_PRICE_INR = (price) => {
+    if (!price) return "";
+    if (typeof price !== "string") return String(price);
+    const numeric = price
+      .replace(/^\$/g, "")
+      .replace(/^INR\s*/i, "")
+      .trim();
+    return `₹${numeric}`;
+  };
+
+  // Normalize Sanity Portable Text blocks (arrays of block objects) into plain text paragraphs
+  const extractTextFromBlocks = (blocks) => {
+    if (!Array.isArray(blocks)) return [];
+    return blocks
+      .map((block) => {
+        if (typeof block === "string") return block;
+        if (block && Array.isArray(block.children)) {
+          return block.children
+            .map((c) => (typeof c?.text === "string" ? c.text : ""))
+            .join("")
+            .trim();
+        }
+        return "";
+      })
+      .filter((p) => p);
+  };
+
   const handleItemClick = (index) => {
     if (index === openItemIndex) {
       setOpenItemIndex(-1);
@@ -195,6 +231,97 @@ const TourDetails = ({ slug }) => {
       setFirstItemOpen(false);
     }
   }, [firstItemOpen]);
+
+  // Render Sanity Portable Text with support for headings, paragraphs, blockquotes, and lists
+  const renderPortableText = (blocks = []) => {
+    const elements = [];
+    let currentList = null; // {type: 'bullet'|'number', items: []}
+
+    const flushList = () => {
+      if (!currentList) return;
+      const ListTag = currentList.type === "number" ? "ol" : "ul";
+      elements.push(
+        <ListTag
+          key={`list-${elements.length}`}
+          className="mb-3"
+          style={{
+            listStyleType: currentList.type === "number" ? "decimal" : "disc",
+            paddingLeft: "1.25rem",
+            marginLeft: 0,
+            listStylePosition: "outside",
+          }}
+        >
+          {currentList.items.map((item, idx) => (
+            <li key={`li-${idx}`}>{item}</li>
+          ))}
+        </ListTag>
+      );
+      currentList = null;
+    };
+
+    blocks.forEach((block, index) => {
+      if (!block || block._type !== "block") return;
+      const text = (block.children || [])
+        .map((child) => (typeof child?.text === "string" ? child.text : ""))
+        .join("")
+        .trim();
+      if (!text) return;
+
+      // Handle list items
+      if (block.listItem) {
+        const listType = block.listItem === "number" ? "number" : "bullet";
+        if (!currentList || currentList.type !== listType) {
+          flushList();
+          currentList = { type: listType, items: [] };
+        }
+        currentList.items.push(text);
+        // If next block is not a list item, flush
+        const next = blocks[index + 1];
+        if (!next || next._type !== "block" || !next.listItem) {
+          flushList();
+        }
+        return;
+      }
+
+      // If we reach here and a list was open, flush it
+      flushList();
+
+      switch (block.style) {
+        case "h2":
+          elements.push(
+            <h2 key={`h2-${index}`} className="mb-3">
+              {text}
+            </h2>
+          );
+          break;
+        case "h3":
+          elements.push(
+            <h3 key={`h3-${index}`} className="mb-2">
+              {text}
+            </h3>
+          );
+          break;
+        case "blockquote":
+          elements.push(
+            <blockquote key={`bq-${index}`} className="blockquote mb-3">
+              <p>{text}</p>
+            </blockquote>
+          );
+          break;
+        default:
+          elements.push(
+            <p key={`p-${index}`} className="mb-3">
+              {text}
+            </p>
+          );
+      }
+    });
+
+    // Flush any remaining list
+    if (currentList) flushList();
+
+    return elements;
+  };
 
   if (loading) {
     return (
@@ -249,6 +376,7 @@ const TourDetails = ({ slug }) => {
               <div className="details-thumb">
                 <img
                   src={(() => {
+                    if (activeImageUrl) return activeImageUrl;
                     if (tour?.mainImage) {
                       try {
                         return urlFor(tour.mainImage).width(1200).height(700).url();
@@ -269,29 +397,133 @@ const TourDetails = ({ slug }) => {
                   }}
                 />
                 <ul className="image-list">
-                  {tour?.galleryImages && tour.galleryImages.length > 0 ? (
-                    tour.galleryImages.slice(0, 3).map((galleryImage, index) => (
-                      <li key={index}>
-                        <img src={urlFor(galleryImage).width(300).height(200).url()} alt={galleryImage.alt || `Tour gallery ${index + 1}`} />
+                  {(() => {
+                    // Always include the current main image as a thumbnail so users can switch back
+                    let mainThumbUrl = "";
+                    let mainLargeUrl = "";
+                    try {
+                      if (tour?.mainImage) {
+                        mainThumbUrl = urlFor(tour.mainImage).width(160).height(110).url();
+                        mainLargeUrl = urlFor(tour.mainImage).width(1200).height(700).url();
+                      } else if (tour?.img) {
+                        mainThumbUrl = tour.img;
+                        mainLargeUrl = tour.img;
+                      } else {
+                        mainThumbUrl = "/assets/img/destails/tour-details.jpg";
+                        mainLargeUrl = "/assets/img/destails/tour-details.jpg";
+                      }
+                    } catch (err) {
+                      console.log("Error generating main image URLs:", err);
+                    }
+                    const isActiveMain = (activeImageUrl ?? mainLargeUrl) === mainLargeUrl;
+                    return (
+                      <li key="main-thumb">
+                        <img
+                          src={mainThumbUrl}
+                          alt={tour?.title || "Main image"}
+                          onClick={() => {
+                            if (mainLargeUrl) setActiveImageUrl(mainLargeUrl);
+                          }}
+                          style={{
+                            cursor: "pointer",
+                            width: "120px",
+                            height: "80px",
+                            objectFit: "cover",
+                            border: isActiveMain ? "2px solid #0d6efd" : "1px solid rgba(0,0,0,0.1)",
+                            borderRadius: "6px",
+                          }}
+                          aria-selected={isActiveMain}
+                        />
                       </li>
-                    ))
+                    );
+                  })()}
+                  {tour?.galleryImages && tour.galleryImages.length > 0 ? (
+                    tour.galleryImages.slice(0, 3).map((galleryImage, index) => {
+                      let thumbUrl = "";
+                      let largeUrl = "";
+                      try {
+                        thumbUrl = urlFor(galleryImage).width(160).height(110).url();
+                        largeUrl = urlFor(galleryImage).width(1200).height(700).url();
+                      } catch (err) {
+                        console.log("Error generating gallery image URLs:", err);
+                      }
+                      const currentMainUrl = (() => {
+                        if (activeImageUrl) return activeImageUrl;
+                        try {
+                          return tour?.mainImage ? urlFor(tour.mainImage).width(1200).height(700).url() : tour?.img || "/assets/img/destails/tour-details.jpg";
+                        } catch {
+                          return tour?.img || "/assets/img/destails/tour-details.jpg";
+                        }
+                      })();
+                      const isActive = currentMainUrl === largeUrl;
+                      return (
+                        <li key={index}>
+                          <img
+                            src={thumbUrl}
+                            alt={galleryImage.alt || `Tour gallery ${index + 1}`}
+                            onClick={() => {
+                              if (largeUrl) setActiveImageUrl(largeUrl);
+                            }}
+                            style={{
+                              cursor: "pointer",
+                              width: "120px",
+                              height: "80px",
+                              objectFit: "cover",
+                              border: isActive ? "2px solid #0d6efd" : "1px solid rgba(0,0,0,0.1)",
+                              borderRadius: "6px",
+                            }}
+                            aria-selected={isActive}
+                          />
+                        </li>
+                      );
+                    })
                   ) : (
                     // Fallback to static images if no gallery images
                     <>
-                      <li>
-                        <img src="/assets/img/destails/tour-details-2.jpg" alt="Tour gallery 1" />
-                      </li>
-                      <li>
-                        <img src="/assets/img/destails/tour-details-3.jpg" alt="Tour gallery 2" />
-                      </li>
-                      <li>
-                        <img src="/assets/img/destails/tour-details-4.jpg" alt="Tour gallery 3" />
-                      </li>
+                      {(() => {
+                        const fallbacks = ["/assets/img/destails/tour-details-2.jpg", "/assets/img/destails/tour-details-3.jpg", "/assets/img/destails/tour-details-4.jpg"];
+                        return fallbacks.map((src, i) => {
+                          const currentMainUrl =
+                            activeImageUrl ||
+                            (tour?.mainImage
+                              ? (() => {
+                                  try {
+                                    return urlFor(tour.mainImage).width(1200).height(700).url();
+                                  } catch {
+                                    return tour?.img || "/assets/img/destails/tour-details.jpg";
+                                  }
+                                })()
+                              : tour?.img || "/assets/img/destails/tour-details.jpg");
+                          const isActive = currentMainUrl === src;
+                          return (
+                            <li key={src}>
+                              <img
+                                src={src}
+                                alt={`Tour gallery ${i + 1}`}
+                                onClick={() => setActiveImageUrl(src)}
+                                style={{
+                                  cursor: "pointer",
+                                  width: "120px",
+                                  height: "80px",
+                                  objectFit: "cover",
+                                  border: isActive ? "2px solid #0d6efd" : "1px solid rgba(0,0,0,0.1)",
+                                  borderRadius: "6px",
+                                }}
+                                aria-selected={isActive}
+                              />
+                            </li>
+                          );
+                        });
+                      })()}
                     </>
                   )}
                 </ul>
               </div>
               <div className="activities-details-content">
+                <div className="tour-type-badge mb-3">
+                  {tour?._type === "domesticTour" && <span className="badge bg-success me-2">Domestic Tour</span>}
+                  {tour?._type === "internationalTour" && <span className="badge bg-primary me-2">International Tour</span>}
+                </div>
                 <h2 className="mb-3">{tour?.title || "Ghorepani Poon Hill Trek"}</h2>
                 <div className="tour-description">
                   {/* Short Description */}
@@ -305,40 +537,7 @@ const TourDetails = ({ slug }) => {
                   {tour?.detailedDescription && tour.detailedDescription.length > 0 ? (
                     <div className="detailed-content">
                       <h4 className="mb-3">Detailed Information</h4>
-                      {tour.detailedDescription.map((block, index) => {
-                        if (block._type === "block") {
-                          const text = block.children?.map((child) => child.text).join("") || "";
-                          if (text.trim()) {
-                            switch (block.style) {
-                              case "h2":
-                                return (
-                                  <h2 key={index} className="mb-3">
-                                    {text}
-                                  </h2>
-                                );
-                              case "h3":
-                                return (
-                                  <h3 key={index} className="mb-2">
-                                    {text}
-                                  </h3>
-                                );
-                              case "blockquote":
-                                return (
-                                  <blockquote key={index} className="blockquote mb-3">
-                                    <p>{text}</p>
-                                  </blockquote>
-                                );
-                              default:
-                                return (
-                                  <p key={index} className="mb-3">
-                                    {text}
-                                  </p>
-                                );
-                            }
-                          }
-                        }
-                        return null;
-                      })}
+                      {renderPortableText(tour.detailedDescription)}
                     </div>
                   ) : (
                     <div className="detailed-content">
@@ -373,112 +572,68 @@ const TourDetails = ({ slug }) => {
                 <div className="activities-list-item">
                   <h3>Experience the Difference</h3>
                   <div className="activities-item">
-                    <ul className="activities-list">
-                      <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M12.6916 5.22013L12.1877 4.5967C12.0188 4.38782 11.7004 4.38782 11.5315 4.5967L11.0275 5.22013C10.7366 5.5801 10.3473 5.84785 9.90712 5.99089C9.46691 6.13393 8.99465 6.14609 8.54766 6.02591L7.77347 5.81779C7.51411 5.74804 7.25644 5.93521 7.24261 6.20348L7.20136 7.00406C7.17753 7.46631 7.02002 7.91171 6.74795 8.28617C6.47588 8.66064 6.10096 8.94807 5.66869 9.11357L4.92005 9.40021C4.66922 9.49626 4.57083 9.79917 4.71727 10.0243L5.15447 10.6963C5.40689 11.0842 5.54126 11.5371 5.54126 12C5.54126 12.4629 5.40689 12.9158 5.15447 13.3037L4.71727 13.9757C4.57078 14.2008 4.66922 14.5037 4.92005 14.5998L5.66869 14.8864C6.10096 15.0519 6.47588 15.3393 6.74795 15.7138C7.02002 16.0883 7.17753 16.5337 7.20136 16.9959L7.24261 17.7965C7.25644 18.0648 7.51411 18.2519 7.77347 18.1822L8.54766 17.9741C8.99464 17.8539 9.46691 17.866 9.90712 18.0091C10.3473 18.1521 10.7365 18.4198 11.0275 18.7798L11.5315 19.4033C11.7004 19.6122 12.0188 19.6122 12.1877 19.4033L12.6916 18.7798C12.9826 18.4198 13.3718 18.1521 13.8121 18.0091C14.2523 17.866 14.7245 17.8539 15.1715 17.9741L15.9457 18.1822C16.2051 18.2519 16.4627 18.0648 16.4766 17.7965L16.5178 16.9959C16.5416 16.5337 16.6992 16.0883 16.9712 15.7138C17.2433 15.3393 17.6182 15.0519 18.0505 14.8864L18.7991 14.5998C19.05 14.5037 19.1484 14.2008 19.0019 13.9757L18.5647 13.3037C18.3123 12.9158 18.1779 12.4629 18.1779 12C18.1779 11.5371 18.3123 11.0842 18.5647 10.6963L19.0019 10.0243C19.1484 9.79917 19.05 9.49626 18.7991 9.40021L18.0505 9.11357C17.6182 8.94807 17.2433 8.66064 16.9712 8.28617C16.6992 7.91171 16.5416 7.46631 16.5178 7.00406L16.4766 6.20348C16.4627 5.93521 16.2051 5.74804 15.9457 5.81779L15.1715 6.02591C14.7245 6.14609 14.2523 6.13393 13.812 5.99089C13.3718 5.84785 12.9826 5.5801 12.6916 5.22013ZM12.9532 3.9779C12.3904 3.28162 11.3288 3.28162 10.766 3.9779L10.262 4.60134C10.0908 4.81308 9.86188 4.97058 9.60293 5.05472C9.34397 5.13885 9.06616 5.146 8.80322 5.07529L8.02908 4.86717C7.16447 4.63467 6.30563 5.25866 6.25955 6.15281L6.2183 6.95338C6.20428 7.2253 6.11163 7.4873 5.95158 7.70757C5.79154 7.92784 5.57098 8.09692 5.3167 8.19426L4.56806 8.48095C3.73191 8.80106 3.40388 9.81065 3.89213 10.5611L4.32938 11.2331C4.47787 11.4613 4.55691 11.7277 4.55691 12C4.55691 12.2723 4.47787 12.5387 4.32938 12.7669L3.89217 13.4389C3.40388 14.1893 3.73191 15.1989 4.56806 15.519L5.3167 15.8057C5.57098 15.903 5.79153 16.0721 5.95157 16.2924C6.11162 16.5127 6.20427 16.7747 6.2183 17.0466L6.25955 17.8472C6.30563 18.7413 7.16447 19.3653 8.02908 19.1328L8.80322 18.9247C9.06616 18.854 9.34397 18.8611 9.60293 18.9453C9.86188 19.0294 10.0908 19.1869 10.262 19.3987L10.766 20.0221C11.3288 20.7184 12.3904 20.7184 12.9532 20.0221L13.4572 19.3987C13.6283 19.1869 13.8573 19.0294 14.1162 18.9453C14.3752 18.8611 14.653 18.854 14.916 18.9247L15.6901 19.1328C16.5547 19.3653 17.4135 18.7413 17.4596 17.8472L17.5009 17.0466C17.5149 16.7747 17.6076 16.5127 17.7676 16.2924C17.9276 16.0721 18.1482 15.903 18.4025 15.8057L19.1511 15.519C19.9873 15.1989 20.3153 14.1893 19.827 13.4389L19.3898 12.7669C19.2413 12.5387 19.1623 12.2723 19.1623 12C19.1623 11.7277 19.2413 11.4613 19.3898 11.2331L19.827 10.5611C20.3153 9.81065 19.9873 8.80106 19.1511 8.48095L18.4025 8.19426C18.1482 8.09692 17.9276 7.92784 17.7676 7.70757C17.6075 7.4873 17.5149 7.2253 17.5009 6.95338L17.4596 6.15281C17.4135 5.25866 16.5547 4.63467 15.6901 4.86717L14.916 5.07529C14.653 5.146 14.3752 5.13885 14.1162 5.05472C13.8573 4.97058 13.6283 4.81308 13.4572 4.60134L12.9532 3.9779Z"
-                            fill="#1CA8CB"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M15.4446 9.45177C15.6353 9.64555 15.6327 9.95717 15.4388 10.1478L11.6863 13.8382C11.1163 14.3987 10.1975 14.383 9.64705 13.8033L8.31496 12.4004C8.12779 12.2033 8.13585 11.8918 8.33296 11.7045C8.53007 11.5174 8.8416 11.5254 9.02877 11.7226L10.3609 13.1255C10.5324 13.306 10.8186 13.3109 10.9961 13.1363L14.7486 9.44596C14.9424 9.25536 15.2541 9.25794 15.4446 9.45177Z"
-                            fill="#1CA8CB"
-                          />
-                        </svg>
-                        Trusted, Local Travel Experts
-                      </li>
-                      <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M12.6916 5.22013L12.1877 4.5967C12.0188 4.38782 11.7004 4.38782 11.5315 4.5967L11.0275 5.22013C10.7366 5.5801 10.3473 5.84785 9.90712 5.99089C9.46691 6.13393 8.99465 6.14609 8.54766 6.02591L7.77347 5.81779C7.51411 5.74804 7.25644 5.93521 7.24261 6.20348L7.20136 7.00406C7.17753 7.46631 7.02002 7.91171 6.74795 8.28617C6.47588 8.66064 6.10096 8.94807 5.66869 9.11357L4.92005 9.40021C4.66922 9.49626 4.57083 9.79917 4.71727 10.0243L5.15447 10.6963C5.40689 11.0842 5.54126 11.5371 5.54126 12C5.54126 12.4629 5.40689 12.9158 5.15447 13.3037L4.71727 13.9757C4.57078 14.2008 4.66922 14.5037 4.92005 14.5998L5.66869 14.8864C6.10096 15.0519 6.47588 15.3393 6.74795 15.7138C7.02002 16.0883 7.17753 16.5337 7.20136 16.9959L7.24261 17.7965C7.25644 18.0648 7.51411 18.2519 7.77347 18.1822L8.54766 17.9741C8.99464 17.8539 9.46691 17.866 9.90712 18.0091C10.3473 18.1521 10.7365 18.4198 11.0275 18.7798L11.5315 19.4033C11.7004 19.6122 12.0188 19.6122 12.1877 19.4033L12.6916 18.7798C12.9826 18.4198 13.3718 18.1521 13.8121 18.0091C14.2523 17.866 14.7245 17.8539 15.1715 17.9741L15.9457 18.1822C16.2051 18.2519 16.4627 18.0648 16.4766 17.7965L16.5178 16.9959C16.5416 16.5337 16.6992 16.0883 16.9712 15.7138C17.2433 15.3393 17.6182 15.0519 18.0505 14.8864L18.7991 14.5998C19.05 14.5037 19.1484 14.2008 19.0019 13.9757L18.5647 13.3037C18.3123 12.9158 18.1779 12.4629 18.1779 12C18.1779 11.5371 18.3123 11.0842 18.5647 10.6963L19.0019 10.0243C19.1484 9.79917 19.05 9.49626 18.7991 9.40021L18.0505 9.11357C17.6182 8.94807 17.2433 8.66064 16.9712 8.28617C16.6992 7.91171 16.5416 7.46631 16.5178 7.00406L16.4766 6.20348C16.4627 5.93521 16.2051 5.74804 15.9457 5.81779L15.1715 6.02591C14.7245 6.14609 14.2523 6.13393 13.812 5.99089C13.3718 5.84785 12.9826 5.5801 12.6916 5.22013ZM12.9532 3.9779C12.3904 3.28162 11.3288 3.28162 10.766 3.9779L10.262 4.60134C10.0908 4.81308 9.86188 4.97058 9.60293 5.05472C9.34397 5.13885 9.06616 5.146 8.80322 5.07529L8.02908 4.86717C7.16447 4.63467 6.30563 5.25866 6.25955 6.15281L6.2183 6.95338C6.20428 7.2253 6.11163 7.4873 5.95158 7.70757C5.79154 7.92784 5.57098 8.09692 5.3167 8.19426L4.56806 8.48095C3.73191 8.80106 3.40388 9.81065 3.89213 10.5611L4.32938 11.2331C4.47787 11.4613 4.55691 11.7277 4.55691 12C4.55691 12.2723 4.47787 12.5387 4.32938 12.7669L3.89217 13.4389C3.40388 14.1893 3.73191 15.1989 4.56806 15.519L5.3167 15.8057C5.57098 15.903 5.79153 16.0721 5.95157 16.2924C6.11162 16.5127 6.20427 16.7747 6.2183 17.0466L6.25955 17.8472C6.30563 18.7413 7.16447 19.3653 8.02908 19.1328L8.80322 18.9247C9.06616 18.854 9.34397 18.8611 9.60293 18.9453C9.86188 19.0294 10.0908 19.1869 10.262 19.3987L10.766 20.0221C11.3288 20.7184 12.3904 20.7184 12.9532 20.0221L13.4572 19.3987C13.6283 19.1869 13.8573 19.0294 14.1162 18.9453C14.3752 18.8611 14.653 18.854 14.916 18.9247L15.6901 19.1328C16.5547 19.3653 17.4135 18.7413 17.4596 17.8472L17.5009 17.0466C17.5149 16.7747 17.6076 16.5127 17.7676 16.2924C17.9276 16.0721 18.1482 15.903 18.4025 15.8057L19.1511 15.519C19.9873 15.1989 20.3153 14.1893 19.827 13.4389L19.3898 12.7669C19.2413 12.5387 19.1623 12.2723 19.1623 12C19.1623 11.7277 19.2413 11.4613 19.3898 11.2331L19.827 10.5611C20.3153 9.81065 19.9873 8.80106 19.1511 8.48095L18.4025 8.19426C18.1482 8.09692 17.9276 7.92784 17.7676 7.70757C17.6075 7.4873 17.5149 7.2253 17.5009 6.95338L17.4596 6.15281C17.4135 5.25866 16.5547 4.63467 15.6901 4.86717L14.916 5.07529C14.653 5.146 14.3752 5.13885 14.1162 5.05472C13.8573 4.97058 13.6283 4.81308 13.4572 4.60134L12.9532 3.9779Z"
-                            fill="#1CA8CB"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M15.4446 9.45177C15.6353 9.64555 15.6327 9.95717 15.4388 10.1478L11.6863 13.8382C11.1163 14.3987 10.1975 14.383 9.64705 13.8033L8.31496 12.4004C8.12779 12.2033 8.13585 11.8918 8.33296 11.7045C8.53007 11.5174 8.8416 11.5254 9.02877 11.7226L10.3609 13.1255C10.5324 13.306 10.8186 13.3109 10.9961 13.1363L14.7486 9.44596C14.9424 9.25536 15.2541 9.25794 15.4446 9.45177Z"
-                            fill="#1CA8CB"
-                          />
-                        </svg>
-                        Flexible, Hassle-Free Bookings
-                      </li>
-                      <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M12.6916 5.22013L12.1877 4.5967C12.0188 4.38782 11.7004 4.38782 11.5315 4.5967L11.0275 5.22013C10.7366 5.5801 10.3473 5.84785 9.90712 5.99089C9.46691 6.13393 8.99465 6.14609 8.54766 6.02591L7.77347 5.81779C7.51411 5.74804 7.25644 5.93521 7.24261 6.20348L7.20136 7.00406C7.17753 7.46631 7.02002 7.91171 6.74795 8.28617C6.47588 8.66064 6.10096 8.94807 5.66869 9.11357L4.92005 9.40021C4.66922 9.49626 4.57083 9.79917 4.71727 10.0243L5.15447 10.6963C5.40689 11.0842 5.54126 11.5371 5.54126 12C5.54126 12.4629 5.40689 12.9158 5.15447 13.3037L4.71727 13.9757C4.57078 14.2008 4.66922 14.5037 4.92005 14.5998L5.66869 14.8864C6.10096 15.0519 6.47588 15.3393 6.74795 15.7138C7.02002 16.0883 7.17753 16.5337 7.20136 16.9959L7.24261 17.7965C7.25644 18.0648 7.51411 18.2519 7.77347 18.1822L8.54766 17.9741C8.99464 17.8539 9.46691 17.866 9.90712 18.0091C10.3473 18.1521 10.7365 18.4198 11.0275 18.7798L11.5315 19.4033C11.7004 19.6122 12.0188 19.6122 12.1877 19.4033L12.6916 18.7798C12.9826 18.4198 13.3718 18.1521 13.8121 18.0091C14.2523 17.866 14.7245 17.8539 15.1715 17.9741L15.9457 18.1822C16.2051 18.2519 16.4627 18.0648 16.4766 17.7965L16.5178 16.9959C16.5416 16.5337 16.6992 16.0883 16.9712 15.7138C17.2433 15.3393 17.6182 15.0519 18.0505 14.8864L18.7991 14.5998C19.05 14.5037 19.1484 14.2008 19.0019 13.9757L18.5647 13.3037C18.3123 12.9158 18.1779 12.4629 18.1779 12C18.1779 11.5371 18.3123 11.0842 18.5647 10.6963L19.0019 10.0243C19.1484 9.79917 19.05 9.49626 18.7991 9.40021L18.0505 9.11357C17.6182 8.94807 17.2433 8.66064 16.9712 8.28617C16.6992 7.91171 16.5416 7.46631 16.5178 7.00406L16.4766 6.20348C16.4627 5.93521 16.2051 5.74804 15.9457 5.81779L15.1715 6.02591C14.7245 6.14609 14.2523 6.13393 13.812 5.99089C13.3718 5.84785 12.9826 5.5801 12.6916 5.22013ZM12.9532 3.9779C12.3904 3.28162 11.3288 3.28162 10.766 3.9779L10.262 4.60134C10.0908 4.81308 9.86188 4.97058 9.60293 5.05472C9.34397 5.13885 9.06616 5.146 8.80322 5.07529L8.02908 4.86717C7.16447 4.63467 6.30563 5.25866 6.25955 6.15281L6.2183 6.95338C6.20428 7.2253 6.11163 7.4873 5.95158 7.70757C5.79154 7.92784 5.57098 8.09692 5.3167 8.19426L4.56806 8.48095C3.73191 8.80106 3.40388 9.81065 3.89213 10.5611L4.32938 11.2331C4.47787 11.4613 4.55691 11.7277 4.55691 12C4.55691 12.2723 4.47787 12.5387 4.32938 12.7669L3.89217 13.4389C3.40388 14.1893 3.73191 15.1989 4.56806 15.519L5.3167 15.8057C5.57098 15.903 5.79153 16.0721 5.95157 16.2924C6.11162 16.5127 6.20427 16.7747 6.2183 17.0466L6.25955 17.8472C6.30563 18.7413 7.16447 19.3653 8.02908 19.1328L8.80322 18.9247C9.06616 18.854 9.34397 18.8611 9.60293 18.9453C9.86188 19.0294 10.0908 19.1869 10.262 19.3987L10.766 20.0221C11.3288 20.7184 12.3904 20.7184 12.9532 20.0221L13.4572 19.3987C13.6283 19.1869 13.8573 19.0294 14.1162 18.9453C14.3752 18.8611 14.653 18.854 14.916 18.9247L15.6901 19.1328C16.5547 19.3653 17.4135 18.7413 17.4596 17.8472L17.5009 17.0466C17.5149 16.7747 17.6076 16.5127 17.7676 16.2924C17.9276 16.0721 18.1482 15.903 18.4025 15.8057L19.1511 15.519C19.9873 15.1989 20.3153 14.1893 19.827 13.4389L19.3898 12.7669C19.2413 12.5387 19.1623 12.2723 19.1623 12C19.1623 11.7277 19.2413 11.4613 19.3898 11.2331L19.827 10.5611C20.3153 9.81065 19.9873 8.80106 19.1511 8.48095L18.4025 8.19426C18.1482 8.09692 17.9276 7.92784 17.7676 7.70757C17.6075 7.4873 17.5149 7.2253 17.5009 6.95338L17.4596 6.15281C17.4135 5.25866 16.5547 4.63467 15.6901 4.86717L14.916 5.07529C14.653 5.146 14.3752 5.13885 14.1162 5.05472C13.8573 4.97058 13.6283 4.81308 13.4572 4.60134L12.9532 3.9779Z"
-                            fill="#1CA8CB"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M15.4446 9.45177C15.6353 9.64555 15.6327 9.95717 15.4388 10.1478L11.6863 13.8382C11.1163 14.3987 10.1975 14.383 9.64705 13.8033L8.31496 12.4004C8.12779 12.2033 8.13585 11.8918 8.33296 11.7045C8.53007 11.5174 8.8416 11.5254 9.02877 11.7226L10.3609 13.1255C10.5324 13.306 10.8186 13.3109 10.9961 13.1363L14.7486 9.44596C14.9424 9.25536 15.2541 9.25794 15.4446 9.45177Z"
-                            fill="#1CA8CB"
-                          />
-                        </svg>
-                        Real-Time Itinerary Updates
-                      </li>
-                    </ul>
-                    <ul className="activities-list">
-                      <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M12.6916 5.22013L12.1877 4.5967C12.0188 4.38782 11.7004 4.38782 11.5315 4.5967L11.0275 5.22013C10.7366 5.5801 10.3473 5.84785 9.90712 5.99089C9.46691 6.13393 8.99465 6.14609 8.54766 6.02591L7.77347 5.81779C7.51411 5.74804 7.25644 5.93521 7.24261 6.20348L7.20136 7.00406C7.17753 7.46631 7.02002 7.91171 6.74795 8.28617C6.47588 8.66064 6.10096 8.94807 5.66869 9.11357L4.92005 9.40021C4.66922 9.49626 4.57083 9.79917 4.71727 10.0243L5.15447 10.6963C5.40689 11.0842 5.54126 11.5371 5.54126 12C5.54126 12.4629 5.40689 12.9158 5.15447 13.3037L4.71727 13.9757C4.57078 14.2008 4.66922 14.5037 4.92005 14.5998L5.66869 14.8864C6.10096 15.0519 6.47588 15.3393 6.74795 15.7138C7.02002 16.0883 7.17753 16.5337 7.20136 16.9959L7.24261 17.7965C7.25644 18.0648 7.51411 18.2519 7.77347 18.1822L8.54766 17.9741C8.99464 17.8539 9.46691 17.866 9.90712 18.0091C10.3473 18.1521 10.7365 18.4198 11.0275 18.7798L11.5315 19.4033C11.7004 19.6122 12.0188 19.6122 12.1877 19.4033L12.6916 18.7798C12.9826 18.4198 13.3718 18.1521 13.8121 18.0091C14.2523 17.866 14.7245 17.8539 15.1715 17.9741L15.9457 18.1822C16.2051 18.2519 16.4627 18.0648 16.4766 17.7965L16.5178 16.9959C16.5416 16.5337 16.6992 16.0883 16.9712 15.7138C17.2433 15.3393 17.6182 15.0519 18.0505 14.8864L18.7991 14.5998C19.05 14.5037 19.1484 14.2008 19.0019 13.9757L18.5647 13.3037C18.3123 12.9158 18.1779 12.4629 18.1779 12C18.1779 11.5371 18.3123 11.0842 18.5647 10.6963L19.0019 10.0243C19.1484 9.79917 19.05 9.49626 18.7991 9.40021L18.0505 9.11357C17.6182 8.94807 17.2433 8.66064 16.9712 8.28617C16.6992 7.91171 16.5416 7.46631 16.5178 7.00406L16.4766 6.20348C16.4627 5.93521 16.2051 5.74804 15.9457 5.81779L15.1715 6.02591C14.7245 6.14609 14.2523 6.13393 13.812 5.99089C13.3718 5.84785 12.9826 5.5801 12.6916 5.22013ZM12.9532 3.9779C12.3904 3.28162 11.3288 3.28162 10.766 3.9779L10.262 4.60134C10.0908 4.81308 9.86188 4.97058 9.60293 5.05472C9.34397 5.13885 9.06616 5.146 8.80322 5.07529L8.02908 4.86717C7.16447 4.63467 6.30563 5.25866 6.25955 6.15281L6.2183 6.95338C6.20428 7.2253 6.11163 7.4873 5.95158 7.70757C5.79154 7.92784 5.57098 8.09692 5.3167 8.19426L4.56806 8.48095C3.73191 8.80106 3.40388 9.81065 3.89213 10.5611L4.32938 11.2331C4.47787 11.4613 4.55691 11.7277 4.55691 12C4.55691 12.2723 4.47787 12.5387 4.32938 12.7669L3.89217 13.4389C3.40388 14.1893 3.73191 15.1989 4.56806 15.519L5.3167 15.8057C5.57098 15.903 5.79153 16.0721 5.95157 16.2924C6.11162 16.5127 6.20427 16.7747 6.2183 17.0466L6.25955 17.8472C6.30563 18.7413 7.16447 19.3653 8.02908 19.1328L8.80322 18.9247C9.06616 18.854 9.34397 18.8611 9.60293 18.9453C9.86188 19.0294 10.0908 19.1869 10.262 19.3987L10.766 20.0221C11.3288 20.7184 12.3904 20.7184 12.9532 20.0221L13.4572 19.3987C13.6283 19.1869 13.8573 19.0294 14.1162 18.9453C14.3752 18.8611 14.653 18.854 14.916 18.9247L15.6901 19.1328C16.5547 19.3653 17.4135 18.7413 17.4596 17.8472L17.5009 17.0466C17.5149 16.7747 17.6076 16.5127 17.7676 16.2924C17.9276 16.0721 18.1482 15.903 18.4025 15.8057L19.1511 15.519C19.9873 15.1989 20.3153 14.1893 19.827 13.4389L19.3898 12.7669C19.2413 12.5387 19.1623 12.2723 19.1623 12C19.1623 11.7277 19.2413 11.4613 19.3898 11.2331L19.827 10.5611C20.3153 9.81065 19.9873 8.80106 19.1511 8.48095L18.4025 8.19426C18.1482 8.09692 17.9276 7.92784 17.7676 7.70757C17.6075 7.4873 17.5149 7.2253 17.5009 6.95338L17.4596 6.15281C17.4135 5.25866 16.5547 4.63467 15.6901 4.86717L14.916 5.07529C14.653 5.146 14.3752 5.13885 14.1162 5.05472C13.8573 4.97058 13.6283 4.81308 13.4572 4.60134L12.9532 3.9779Z"
-                            fill="#1CA8CB"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M15.4446 9.45177C15.6353 9.64555 15.6327 9.95717 15.4388 10.1478L11.6863 13.8382C11.1163 14.3987 10.1975 14.383 9.64705 13.8033L8.31496 12.4004C8.12779 12.2033 8.13585 11.8918 8.33296 11.7045C8.53007 11.5174 8.8416 11.5254 9.02877 11.7226L10.3609 13.1255C10.5324 13.306 10.8186 13.3109 10.9961 13.1363L14.7486 9.44596C14.9424 9.25536 15.2541 9.25794 15.4446 9.45177Z"
-                            fill="#1CA8CB"
-                          />
-                        </svg>
-                        Flexible Cancellation Policies
-                      </li>
-                      <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M12.6916 5.22013L12.1877 4.5967C12.0188 4.38782 11.7004 4.38782 11.5315 4.5967L11.0275 5.22013C10.7366 5.5801 10.3473 5.84785 9.90712 5.99089C9.46691 6.13393 8.99465 6.14609 8.54766 6.02591L7.77347 5.81779C7.51411 5.74804 7.25644 5.93521 7.24261 6.20348L7.20136 7.00406C7.17753 7.46631 7.02002 7.91171 6.74795 8.28617C6.47588 8.66064 6.10096 8.94807 5.66869 9.11357L4.92005 9.40021C4.66922 9.49626 4.57083 9.79917 4.71727 10.0243L5.15447 10.6963C5.40689 11.0842 5.54126 11.5371 5.54126 12C5.54126 12.4629 5.40689 12.9158 5.15447 13.3037L4.71727 13.9757C4.57078 14.2008 4.66922 14.5037 4.92005 14.5998L5.66869 14.8864C6.10096 15.0519 6.47588 15.3393 6.74795 15.7138C7.02002 16.0883 7.17753 16.5337 7.20136 16.9959L7.24261 17.7965C7.25644 18.0648 7.51411 18.2519 7.77347 18.1822L8.54766 17.9741C8.99464 17.8539 9.46691 17.866 9.90712 18.0091C10.3473 18.1521 10.7365 18.4198 11.0275 18.7798L11.5315 19.4033C11.7004 19.6122 12.0188 19.6122 12.1877 19.4033L12.6916 18.7798C12.9826 18.4198 13.3718 18.1521 13.8121 18.0091C14.2523 17.866 14.7245 17.8539 15.1715 17.9741L15.9457 18.1822C16.2051 18.2519 16.4627 18.0648 16.4766 17.7965L16.5178 16.9959C16.5416 16.5337 16.6992 16.0883 16.9712 15.7138C17.2433 15.3393 17.6182 15.0519 18.0505 14.8864L18.7991 14.5998C19.05 14.5037 19.1484 14.2008 19.0019 13.9757L18.5647 13.3037C18.3123 12.9158 18.1779 12.4629 18.1779 12C18.1779 11.5371 18.3123 11.0842 18.5647 10.6963L19.0019 10.0243C19.1484 9.79917 19.05 9.49626 18.7991 9.40021L18.0505 9.11357C17.6182 8.94807 17.2433 8.66064 16.9712 8.28617C16.6992 7.91171 16.5416 7.46631 16.5178 7.00406L16.4766 6.20348C16.4627 5.93521 16.2051 5.74804 15.9457 5.81779L15.1715 6.02591C14.7245 6.14609 14.2523 6.13393 13.812 5.99089C13.3718 5.84785 12.9826 5.5801 12.6916 5.22013ZM12.9532 3.9779C12.3904 3.28162 11.3288 3.28162 10.766 3.9779L10.262 4.60134C10.0908 4.81308 9.86188 4.97058 9.60293 5.05472C9.34397 5.13885 9.06616 5.146 8.80322 5.07529L8.02908 4.86717C7.16447 4.63467 6.30563 5.25866 6.25955 6.15281L6.2183 6.95338C6.20428 7.2253 6.11163 7.4873 5.95158 7.70757C5.79154 7.92784 5.57098 8.09692 5.3167 8.19426L4.56806 8.48095C3.73191 8.80106 3.40388 9.81065 3.89213 10.5611L4.32938 11.2331C4.47787 11.4613 4.55691 11.7277 4.55691 12C4.55691 12.2723 4.47787 12.5387 4.32938 12.7669L3.89217 13.4389C3.40388 14.1893 3.73191 15.1989 4.56806 15.519L5.3167 15.8057C5.57098 15.903 5.79153 16.0721 5.95157 16.2924C6.11162 16.5127 6.20427 16.7747 6.2183 17.0466L6.25955 17.8472C6.30563 18.7413 7.16447 19.3653 8.02908 19.1328L8.80322 18.9247C9.06616 18.854 9.34397 18.8611 9.60293 18.9453C9.86188 19.0294 10.0908 19.1869 10.262 19.3987L10.766 20.0221C11.3288 20.7184 12.3904 20.7184 12.9532 20.0221L13.4572 19.3987C13.6283 19.1869 13.8573 19.0294 14.1162 18.9453C14.3752 18.8611 14.653 18.854 14.916 18.9247L15.6901 19.1328C16.5547 19.3653 17.4135 18.7413 17.4596 17.8472L17.5009 17.0466C17.5149 16.7747 17.6076 16.5127 17.7676 16.2924C17.9276 16.0721 18.1482 15.903 18.4025 15.8057L19.1511 15.519C19.9873 15.1989 20.3153 14.1893 19.827 13.4389L19.3898 12.7669C19.2413 12.5387 19.1623 12.2723 19.1623 12C19.1623 11.7277 19.2413 11.4613 19.3898 11.2331L19.827 10.5611C20.3153 9.81065 19.9873 8.80106 19.1511 8.48095L18.4025 8.19426C18.1482 8.09692 17.9276 7.92784 17.7676 7.70757C17.6075 7.4873 17.5149 7.2253 17.5009 6.95338L17.4596 6.15281C17.4135 5.25866 16.5547 4.63467 15.6901 4.86717L14.916 5.07529C14.653 5.146 14.3752 5.13885 14.1162 5.05472C13.8573 4.97058 13.6283 4.81308 13.4572 4.60134L12.9532 3.9779Z"
-                            fill="#1CA8CB"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M15.4446 9.45177C15.6353 9.64555 15.6327 9.95717 15.4388 10.1478L11.6863 13.8382C11.1163 14.3987 10.1975 14.383 9.64705 13.8033L8.31496 12.4004C8.12779 12.2033 8.13585 11.8918 8.33296 11.7045C8.53007 11.5174 8.8416 11.5254 9.02877 11.7226L10.3609 13.1255C10.5324 13.306 10.8186 13.3109 10.9961 13.1363L14.7486 9.44596C14.9424 9.25536 15.2541 9.25794 15.4446 9.45177Z"
-                            fill="#1CA8CB"
-                          />
-                        </svg>
-                        Customized Travel Experiences
-                      </li>
-                      <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M12.6916 5.22013L12.1877 4.5967C12.0188 4.38782 11.7004 4.38782 11.5315 4.5967L11.0275 5.22013C10.7366 5.5801 10.3473 5.84785 9.90712 5.99089C9.46691 6.13393 8.99465 6.14609 8.54766 6.02591L7.77347 5.81779C7.51411 5.74804 7.25644 5.93521 7.24261 6.20348L7.20136 7.00406C7.17753 7.46631 7.02002 7.91171 6.74795 8.28617C6.47588 8.66064 6.10096 8.94807 5.66869 9.11357L4.92005 9.40021C4.66922 9.49626 4.57083 9.79917 4.71727 10.0243L5.15447 10.6963C5.40689 11.0842 5.54126 11.5371 5.54126 12C5.54126 12.4629 5.40689 12.9158 5.15447 13.3037L4.71727 13.9757C4.57078 14.2008 4.66922 14.5037 4.92005 14.5998L5.66869 14.8864C6.10096 15.0519 6.47588 15.3393 6.74795 15.7138C7.02002 16.0883 7.17753 16.5337 7.20136 16.9959L7.24261 17.7965C7.25644 18.0648 7.51411 18.2519 7.77347 18.1822L8.54766 17.9741C8.99464 17.8539 9.46691 17.866 9.90712 18.0091C10.3473 18.1521 10.7365 18.4198 11.0275 18.7798L11.5315 19.4033C11.7004 19.6122 12.0188 19.6122 12.1877 19.4033L12.6916 18.7798C12.9826 18.4198 13.3718 18.1521 13.8121 18.0091C14.2523 17.866 14.7245 17.8539 15.1715 17.9741L15.9457 18.1822C16.2051 18.2519 16.4627 18.0648 16.4766 17.7965L16.5178 16.9959C16.5416 16.5337 16.6992 16.0883 16.9712 15.7138C17.2433 15.3393 17.6182 15.0519 18.0505 14.8864L18.7991 14.5998C19.05 14.5037 19.1484 14.2008 19.0019 13.9757L18.5647 13.3037C18.3123 12.9158 18.1779 12.4629 18.1779 12C18.1779 11.5371 18.3123 11.0842 18.5647 10.6963L19.0019 10.0243C19.1484 9.79917 19.05 9.49626 18.7991 9.40021L18.0505 9.11357C17.6182 8.94807 17.2433 8.66064 16.9712 8.28617C16.6992 7.91171 16.5416 7.46631 16.5178 7.00406L16.4766 6.20348C16.4627 5.93521 16.2051 5.74804 15.9457 5.81779L15.1715 6.02591C14.7245 6.14609 14.2523 6.13393 13.812 5.99089C13.3718 5.84785 12.9826 5.5801 12.6916 5.22013ZM12.9532 3.9779C12.3904 3.28162 11.3288 3.28162 10.766 3.9779L10.262 4.60134C10.0908 4.81308 9.86188 4.97058 9.60293 5.05472C9.34397 5.13885 9.06616 5.146 8.80322 5.07529L8.02908 4.86717C7.16447 4.63467 6.30563 5.25866 6.25955 6.15281L6.2183 6.95338C6.20428 7.2253 6.11163 7.4873 5.95158 7.70757C5.79154 7.92784 5.57098 8.09692 5.3167 8.19426L4.56806 8.48095C3.73191 8.80106 3.40388 9.81065 3.89213 10.5611L4.32938 11.2331C4.47787 11.4613 4.55691 11.7277 4.55691 12C4.55691 12.2723 4.47787 12.5387 4.32938 12.7669L3.89217 13.4389C3.40388 14.1893 3.73191 15.1989 4.56806 15.519L5.3167 15.8057C5.57098 15.903 5.79153 16.0721 5.95157 16.2924C6.11162 16.5127 6.20427 16.7747 6.2183 17.0466L6.25955 17.8472C6.30563 18.7413 7.16447 19.3653 8.02908 19.1328L8.80322 18.9247C9.06616 18.854 9.34397 18.8611 9.60293 18.9453C9.86188 19.0294 10.0908 19.1869 10.262 19.3987L10.766 20.0221C11.3288 20.7184 12.3904 20.7184 12.9532 20.0221L13.4572 19.3987C13.6283 19.1869 13.8573 19.0294 14.1162 18.9453C14.3752 18.8611 14.653 18.854 14.916 18.9247L15.6901 19.1328C16.5547 19.3653 17.4135 18.7413 17.4596 17.8472L17.5009 17.0466C17.5149 16.7747 17.6076 16.5127 17.7676 16.2924C17.9276 16.0721 18.1482 15.903 18.4025 15.8057L19.1511 15.519C19.9873 15.1989 20.3153 14.1893 19.827 13.4389L19.3898 12.7669C19.2413 12.5387 19.1623 12.2723 19.1623 12C19.1623 11.7277 19.2413 11.4613 19.3898 11.2331L19.827 10.5611C20.3153 9.81065 19.9873 8.80106 19.1511 8.48095L18.4025 8.19426C18.1482 8.09692 17.9276 7.92784 17.7676 7.70757C17.6075 7.4873 17.5149 7.2253 17.5009 6.95338L17.4596 6.15281C17.4135 5.25866 16.5547 4.63467 15.6901 4.86717L14.916 5.07529C14.653 5.146 14.3752 5.13885 14.1162 5.05472C13.8573 4.97058 13.6283 4.81308 13.4572 4.60134L12.9532 3.9779Z"
-                            fill="#1CA8CB"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M15.4446 9.45177C15.6353 9.64555 15.6327 9.95717 15.4388 10.1478L11.6863 13.8382C11.1163 14.3987 10.1975 14.383 9.64705 13.8033L8.31496 12.4004C8.12779 12.2033 8.13585 11.8918 8.33296 11.7045C8.53007 11.5174 8.8416 11.5254 9.02877 11.7226L10.3609 13.1255C10.5324 13.306 10.8186 13.3109 10.9961 13.1363L14.7486 9.44596C14.9424 9.25536 15.2541 9.25794 15.4446 9.45177Z"
-                            fill="#1CA8CB"
-                          />
-                        </svg>
-                        Exclusive Travel Deals
-                      </li>
-                    </ul>
+                    {(() => {
+                      // Check for benefits first (what's actually in Sanity), then experienceDifferences
+                      const items = tour?.benefits || tour?.experienceDifferences;
+                      if (items && items.length > 0) {
+                        const mid = Math.ceil(items.length / 2);
+                        const leftItems = items.slice(0, mid);
+                        const rightItems = items.slice(mid);
+                        return (
+                          <>
+                            <ul className="activities-list">
+                              {leftItems.map((text, idx) => (
+                                <li key={`exp-left-${idx}`}>
+                                  <img src="/mainimage/qua1.png" alt="benefit" width="24" height="24" className="me-2" />
+                                  {text}
+                                </li>
+                              ))}
+                            </ul>
+                            <ul className="activities-list">
+                              {rightItems.map((text, idx) => (
+                                <li key={`exp-right-${idx}`}>
+                                  <img src="/mainimage/qua1.png" alt="benefit" width="24" height="24" className="me-2" />
+                                  {text}
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        );
+                      }
+                      // Fallback to static content
+                      return (
+                        <>
+                          <ul className="activities-list">
+                            <li>
+                              <img src="/qua.png" alt="benefit" width="24" height="24" className="me-2" />
+                              Trusted, Local Travel Experts
+                            </li>
+                            <li>
+                              <img src="/qua.png" alt="benefit" width="24" height="24" className="me-2" />
+                              Flexible, Hassle-Free Bookings
+                            </li>
+                            <li>
+                              <img src="/qua.png" alt="benefit" width="24" height="24" className="me-2" />
+                              Real-Time Itinerary Updates
+                            </li>
+                          </ul>
+                          <ul className="activities-list">
+                            <li>
+                              <img src="/qua.png" alt="benefit" width="24" height="24" className="me-2" />
+                              Flexible Cancellation Policies
+                            </li>
+                            <li>
+                              <img src="/qua.png" alt="benefit" width="24" height="24" className="me-2" />
+                              Customized Travel Experiences
+                            </li>
+                            <li>
+                              <img src="/qua.png" alt="benefit" width="24" height="24" className="me-2" />
+                              Exclusive Travel Deals
+                            </li>
+                          </ul>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
                 <div className="activities-box-wrap">
@@ -527,7 +682,7 @@ const TourDetails = ({ slug }) => {
                       </div>
                       <div className="content">
                         <span>Hotel Transfer</span>
-                        <h6>Available</h6>
+                        <h6>{tour?.hotelTransferAvailable === true ? "Available" : tour?.hotelTransferAvailable === false ? "Not Available" : "Ask us"}</h6>
                       </div>
                     </div>
                     <div className="activities-box-item">
@@ -536,7 +691,7 @@ const TourDetails = ({ slug }) => {
                       </div>
                       <div className="content">
                         <span>Next Tour</span>
-                        <h6>Available</h6>
+                        <h6>{tour?.nextTourAvailable === true ? "Available" : tour?.nextTourAvailable === false ? "Not Scheduled" : "On Request"}</h6>
                       </div>
                     </div>
                     <div className="activities-box-item">
@@ -544,8 +699,8 @@ const TourDetails = ({ slug }) => {
                         <img src="/assets/img/icon/33.svg" alt="img" />
                       </div>
                       <div className="content">
-                        <span>01 Guide</span>
-                        <h6>Guided</h6>
+                        <span>{typeof tour?.guideCount === "number" ? `${tour.guideCount} Guide${tour.guideCount === 1 ? "" : "s"}` : "Guides"}</span>
+                        <h6>{typeof tour?.guideCount === "number" ? "Guided" : "Ask us"}</h6>
                       </div>
                     </div>
                     <div className="activities-box-item">
@@ -554,7 +709,7 @@ const TourDetails = ({ slug }) => {
                       </div>
                       <div className="content">
                         <span>Maximum Age</span>
-                        <h6>60</h6>
+                        <h6>{tour?.maxAge ? String(tour.maxAge) : "-"}</h6>
                       </div>
                     </div>
                   </div>
@@ -563,296 +718,44 @@ const TourDetails = ({ slug }) => {
                   <h3>Tour Plan</h3>
                   <div className="faq-accordion">
                     <div className="accordion" id="accordion">
-                      {faqContent.map((item, index) => (
-                        <div key={index} className={`accordion-item mb-3 ${index === openItemIndex ? "active" : ""}`}>
-                          <h5 onClick={() => handleItemClick(index)} className="accordion-header">
-                            <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
-                              {item.title}
-                            </button>
-                          </h5>
-                          <div ref={accordionContentRef} id="faq1" className="accordion-collapse collapse" data-bs-parent="#accordion">
-                            <div className="accordion-body">
-                              <p>{item.content}</p>
-                              <div className="faq-image">
-                                <img src="/assets/img/destails/faq-img.jpg" alt="img" />
+                      {(() => {
+                        const items =
+                          Array.isArray(tour?.tourPlan) && tour.tourPlan.length > 0
+                            ? tour.tourPlan.map((it) => {
+                                if (typeof it === "string") return { title: it, content: "" };
+                                const rawContent = it?.content || it?.description || it?.details || "";
+                                const normalizedContent = Array.isArray(rawContent) ? extractTextFromBlocks(rawContent) : rawContent;
+                                return {
+                                  title: it?.title || it?.dayTitle || it?.name || "",
+                                  content: normalizedContent,
+                                };
+                              })
+                            : faqContent;
+                        return items.map((item, index) => {
+                          const collapseId = `faq-${index}`;
+                          return (
+                            <div key={index} className={`accordion-item mb-3 ${index === openItemIndex ? "active" : ""}`}>
+                              <h5 onClick={() => handleItemClick(index)} className="accordion-header">
+                                <button
+                                  className="accordion-button collapsed"
+                                  type="button"
+                                  data-bs-toggle="collapse"
+                                  data-bs-target={`#${collapseId}`}
+                                  aria-expanded={index === openItemIndex}
+                                  aria-controls={collapseId}
+                                >
+                                  {item.title || `Day ${index + 1}`}
+                                </button>
+                              </h5>
+                              <div ref={accordionContentRef} id={collapseId} className="accordion-collapse collapse" data-bs-parent="#accordion">
+                                <div className="accordion-body">{Array.isArray(item.content) ? item.content.map((line, i) => <p key={i}>{line}</p>) : <p>{item.content}</p>}</div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      ))}
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
-                </div>
-                <div className="map-area">
-                  <h3>View in Map</h3>
-                  <div className="google-map">
-                    <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6678.7619084840835!2d144.9618311901502!3d-37.81450084255415!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642b4758afc1d%3A0x3119cc820fdfc62e!2sEnvato!5e0!3m2!1sen!2sbd!4v1641984054261!5m2!1sen!2sbd"
-                      loading="lazy"
-                    ></iframe>
-                  </div>
-                </div>
-                <h3>Customer Reviews</h3>
-                <div className="courses-reviews-box-items">
-                  <div className="courses-reviews-box">
-                    <div className="reviews-box">
-                      <h2>
-                        <span className="count">4.9</span>
-                      </h2>
-                      <div className="star">
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                      </div>
-                      <p>856+ Reviews</p>
-                    </div>
-                    <div className="reviews-ratting-right">
-                      <div className="reviews-ratting-item">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <div className="progress">
-                          <div className="progress-value style-two"></div>
-                        </div>
-                        <span>Services</span>
-                      </div>
-                      <div className="reviews-ratting-item">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <div className="progress">
-                          <div className="progress-value style-three"></div>
-                        </div>
-                        <span>Safety</span>
-                      </div>
-                      <div className="reviews-ratting-item">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <div className="progress">
-                          <div className="progress-value style-three"></div>
-                        </div>
-                        <span>Guides</span>
-                      </div>
-                      <div className="reviews-ratting-item">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <div className="progress">
-                          <div className="progress-value style-four"></div>
-                        </div>
-                        <span>Foods</span>
-                      </div>
-                      <div className="reviews-ratting-item">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <div className="progress">
-                          <div className="progress-value style-five"></div>
-                        </div>
-                        <span>Hotels</span>
-                      </div>
-                      <div className="reviews-ratting-item">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <div className="progress">
-                          <div className="progress-value style-five"></div>
-                        </div>
-                        <span>Places</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="cliect-review-area">
-                  <h3>client review</h3>
-                  <ul className="review-items">
-                    <li>
-                      <div className="thumb">
-                        <img src="/assets/img/destails/client-1.jpg" alt="img" />
-                      </div>
-                      <div className="content">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <h5>Shikhon Islam</h5>
-                        <p>
-                          Neque porro est qui dolorem ipsum quia quaed inventor veritatis et quasi architecto var sed efficitur turpis gilla sed sit amet finibus eros. Lorem Ipsum
-                          is simply dummy
-                        </p>
-                        <span className="reply-icon">
-                          <i className="fa-solid fa-reply"></i> Reply
-                        </span>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="thumb">
-                        <img src="/assets/img/destails/client-2.jpg" alt="img" />
-                      </div>
-                      <div className="content">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <h5>Ralph Edwards</h5>
-                        <p>Neque porro est qui dolorem ipsum quia quaed inventor veritatis et quasi architecto var sed efficitur turpis gilla sed sit amet finibus eros.</p>
-                        <span className="reply-icon">
-                          <i className="fa-solid fa-reply"></i> Reply
-                        </span>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="thumb">
-                        <img src="/assets/img/destails/client-3.jpg" alt="img" />
-                      </div>
-                      <div className="content">
-                        <div className="star">
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                          <i className="bi bi-star-fill"></i>
-                        </div>
-                        <h5>Sohel Islam</h5>
-                        <p>
-                          Neque porro est qui dolorem ipsum quia quaed inventor veritatis et quasi architecto var sed efficitur turpis gilla sed sit amet finibus eros. Lorem Ipsum
-                          is simply dummy
-                        </p>
-                        <span className="reply-icon">
-                          <i className="fa-solid fa-reply"></i> Reply
-                        </span>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                <div className="client-ratting-items">
-                  <h3>Add Your Reviews</h3>
-                  <ul>
-                    <li>
-                      Services
-                      <div className="star">
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                      </div>
-                    </li>
-                    <li>
-                      Hotel
-                      <div className="star">
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                      </div>
-                    </li>
-                    <li>
-                      Places
-                      <div className="star">
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                      </div>
-                    </li>
-                  </ul>
-                  <ul className="mb-4">
-                    <li>
-                      Safety
-                      <div className="star">
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                      </div>
-                    </li>
-                    <li>
-                      Foods
-                      <div className="star">
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                      </div>
-                    </li>
-                    <li>
-                      Guides
-                      <div className="star">
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                        <i className="bi bi-star-fill"></i>
-                      </div>
-                    </li>
-                  </ul>
-                  <form action="#" id="contact-form" method="POST">
-                    <div className="row g-4">
-                      <div className="col-lg-6">
-                        <div className="form-clt">
-                          <input type="text" name="name" id="name" placeholder="Your name" />
-                        </div>
-                      </div>
-                      <div className="col-lg-6">
-                        <div className="form-clt">
-                          <input type="text" name="phone" id="phone" placeholder="Your phone" />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-clt">
-                          <input type="text" name="email2" id="email21" placeholder="Your email" />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-clt">
-                          <textarea name="message" id="message" placeholder="Your comments..."></textarea>
-                        </div>
-                      </div>
-                      <div className="col-lg-6">
-                        <button type="submit" className="theme-btn text-center">
-                          Submit Reviews <i className="bi bi-arrow-right"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </form>
                 </div>
               </div>
             </div>
@@ -890,7 +793,7 @@ const TourDetails = ({ slug }) => {
                   </div>
                 </div>
 
-                <div className="booking-bg bg-cover" data-background="/assets/img/destails/booking-bg.jpg">
+                <div className="booking-bg bg-cover" data-background="/mainimage/banner.jpg">
                   <h3 className="text-title">Book Now And Enjoy Amazing Savings!</h3>
                 </div>
               </div>

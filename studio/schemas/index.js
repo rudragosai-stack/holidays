@@ -1,6 +1,7 @@
 // Import schemas
 import heroBanner from "./heroBanner";
 import counter from "./counter";
-import tour from "./tour";
+import domesticTour from "./domesticTour";
+import internationalTour from "./internationalTour";
 
-export const schemaTypes = [heroBanner, counter, tour];
+export const schemaTypes = [heroBanner, counter, domesticTour, internationalTour];
