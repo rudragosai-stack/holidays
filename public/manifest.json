@@ -1,0 +1,41 @@
+{
+  "name": "Turmet Travel - Your Gateway to Amazing Adventures",
+  "short_name": "Turmet Travel",
+  "description": "Discover amazing travel destinations, tours, and activities with Turmet Travel. Book your dream vacation with our expert travel agency.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/mainimage/logo.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/mainimage/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["travel", "lifestyle", "business"],
+  "screenshots": [
+    {
+      "src": "/mainimage/banner.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ]
+}
