@@ -1,5 +1,7 @@
 import DropDown from "./DropDown";
 import { Link } from "react-router";
+import DomesticMenu from "./DomesticMenu";
+import InternationalMenu from "./InternationalMenu";
 
 export default function Nav({ setMobileToggle }) {
   return (
@@ -16,22 +18,19 @@ export default function Nav({ setMobileToggle }) {
         </Link>
       </li>
       <li className="menu-item-has-children">
-        <Link to="/tour" onClick={() => setMobileToggle(false)}>
-          Tour
+        <Link to="/tour/domestic" onClick={() => setMobileToggle(false)}>
+          Domestic
         </Link>
         <DropDown>
-          <ul>
-            <li>
-              <Link to="/tour/domestic" onClick={() => setMobileToggle(false)}>
-                Domestic
-              </Link>
-            </li>
-            <li>
-              <Link to="/tour/international" onClick={() => setMobileToggle(false)}>
-                International
-              </Link>
-            </li>
-          </ul>
+          <DomesticMenu onItemClick={() => setMobileToggle(false)} />
+        </DropDown>
+      </li>
+      <li className="menu-item-has-children">
+        <Link to="/tour/international" onClick={() => setMobileToggle(false)}>
+          International
+        </Link>
+        <DropDown>
+          <InternationalMenu onItemClick={() => setMobileToggle(false)} />
         </DropDown>
       </li>
       <li className="menu-item-has-children">

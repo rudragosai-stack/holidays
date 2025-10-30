@@ -188,6 +188,38 @@ export default {
       description: "Short bullets shown under 'Experience the Difference'",
     },
     {
+      name: "benefits",
+      title: "Benefits",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+      description: "Additional benefits shown for this tour",
+    },
+    {
+      name: "guideCount",
+      title: "Number of Guides",
+      type: "number",
+      validation: (Rule) => Rule.min(0).integer(),
+    },
+    {
+      name: "hotelTransferAvailable",
+      title: "Hotel Transfer Available",
+      type: "boolean",
+      initialValue: false,
+    },
+    {
+      name: "maxAge",
+      title: "Maximum Age",
+      type: "number",
+      validation: (Rule) => Rule.min(0).max(120).integer(),
+    },
+    {
+      name: "nextTourAvailable",
+      title: "Next Tour Available",
+      type: "boolean",
+      initialValue: true,
+    },
+    {
       name: "tourPlan",
       title: "Tour Plan (Accordion)",
       type: "array",
