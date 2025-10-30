@@ -2,14 +2,14 @@
 export const seoConfig = {
   // Site Information
   siteName: "One World Holidays",
-  siteUrl: "https://oneworldholidays.com",
+  siteUrl: "https://turmet-travel.com",
   siteDescription: "Your gateway to amazing adventures and unforgettable travel experiences",
   siteKeywords: "travel, tours, vacation, destinations, travel agency, adventure, holiday, booking, flights, hotels",
 
   // Contact Information
   contact: {
     phone: "+1-555-0123",
-    email: "info@oneworldholidays.com",
+    email: "info@turmet-travel.com",
     address: {
       street: "123 Travel Street",
       city: "New York",
@@ -21,10 +21,10 @@ export const seoConfig = {
 
   // Social Media
   social: {
-    facebook: "https://www.facebook.com/oneworldholidays",
-    instagram: "https://www.instagram.com/oneworldholidays",
-    twitter: "https://www.twitter.com/oneworldholidays",
-    linkedin: "https://www.linkedin.com/company/oneworldholidays",
+    facebook: "https://www.facebook.com/turmet-travel",
+    instagram: "https://www.instagram.com/turmet_travel",
+    twitter: "https://www.twitter.com/turmet_travel",
+    linkedin: "https://www.linkedin.com/company/turmet-travel",
   },
 
   // Default Images
@@ -44,7 +44,8 @@ export const seoConfig = {
     },
     about: {
       title: "About Us - One World Holidays | Your Trusted Travel Partner",
-      description: "Learn about One World Holidays' mission to provide exceptional travel experiences. Discover our story, values, and commitment to making your dreams come true.",
+      description:
+        "Learn about One World Holidays's mission to provide exceptional travel experiences. Discover our story, values, and commitment to making your dreams come true.",
       keywords: "about us, travel agency, company story, team, mission, values, travel experts",
     },
     destinations: {

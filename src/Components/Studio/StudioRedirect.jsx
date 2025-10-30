@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 const StudioRedirect = () => {
   useEffect(() => {
     // Redirect to the deployed Sanity Studio
-    window.location.href = "https://oneworldholidays.sanity.studio/";
+    window.location.href = "https://turmet-travel.sanity.studio/";
   }, []);
 
   return (
@@ -20,7 +20,7 @@ const StudioRedirect = () => {
               <div className="mt-3">
                 <p className="text-muted">
                   If you're not redirected automatically,{" "}
-                  <a href="https://oneworldholidays.sanity.studio/" className="btn btn-primary">
+                  <a href="https://turmet-travel.sanity.studio/" className="btn btn-primary">
                     click here
                   </a>
                 </p>

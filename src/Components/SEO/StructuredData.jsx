@@ -1,7 +1,7 @@
 import React from "react";
 
 // Travel Agency Organization Schema
-export const getTravelAgencySchema = (websiteUrl = "https://oneworldholidays.com") => ({
+export const getTravelAgencySchema = (websiteUrl = "https://turmet-travel.com") => ({
   "@context": "https://schema.org",
   "@type": "TravelAgency",
   name: "One World Holidays",
@@ -10,7 +10,7 @@ export const getTravelAgencySchema = (websiteUrl = "https://oneworldholidays.com
   logo: `${websiteUrl}/mainimage/logo3.png`,
   image: `${websiteUrl}/mainimage/banner.jpg`,
   telephone: "+1-555-0123",
-  email: "info@oneworldholidays.com",
+  email: "info@turmet-travel.com",
   address: {
     "@type": "PostalAddress",
     streetAddress: "123 Travel Street",
@@ -19,7 +19,7 @@ export const getTravelAgencySchema = (websiteUrl = "https://oneworldholidays.com
     postalCode: "10001",
     addressCountry: "US",
   },
-  sameAs: ["https://www.facebook.com/oneworldholidays", "https://www.instagram.com/oneworldholidays", "https://www.twitter.com/oneworldholidays"],
+  sameAs: ["https://www.facebook.com/turmet-travel", "https://www.instagram.com/turmet_travel", "https://www.twitter.com/turmet_travel"],
   serviceArea: {
     "@type": "GeoCircle",
     geoMidpoint: {
@@ -72,7 +72,7 @@ export const getTourSchema = (tour) => ({
   provider: {
     "@type": "TravelAgency",
     name: "One World Holidays",
-    url: "https://oneworldholidays.com",
+    url: "https://turmet-travel.com",
   },
   offers: {
     "@type": "Offer",
@@ -142,7 +142,7 @@ export const getLocalBusinessSchema = () => ({
   "@type": "LocalBusiness",
   name: "One World Holidays",
   description: "Premier travel agency offering tours, flights, and vacation packages",
-  url: "https://oneworldholidays.com",
+  url: "https://turmet-travel.com",
   telephone: "+1-555-0123",
   address: {
     "@type": "PostalAddress",
@@ -180,7 +180,7 @@ export const getLocalBusinessSchema = () => ({
 });
 
 // WebSite Schema
-export const getWebSiteSchema = (websiteUrl = "https://oneworldholidays.com") => ({
+export const getWebSiteSchema = (websiteUrl = "https://turmet-travel.com") => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "One World Holidays",

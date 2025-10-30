@@ -1,6 +1,6 @@
-# Sanity CMS Setup for One World Holidays Agency
+# Sanity CMS Setup for One World Holidays
 
-This document explains how to set up and use Sanity CMS with your One World Holidays Agency React application.
+This document explains how to set up and use Sanity CMS with your One World Holidays React application.
 
 ## What's Been Set Up
 

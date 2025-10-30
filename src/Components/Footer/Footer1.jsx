@@ -217,7 +217,7 @@ const Footer1 = () => {
             >
               Contact Us
             </h4>
-            <p style={{ color: "#666", marginBottom: "30px", fontFamily: "sans-serif" }}>contact@oneworldholidays.com</p>
+            <p style={{ color: "#666", marginBottom: "30px", fontFamily: "sans-serif" }}>info@oneworldholidays.com</p>
 
             <h4
               style={{
