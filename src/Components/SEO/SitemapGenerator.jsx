@@ -2,7 +2,7 @@ import React from "react";
 
 // This component generates a sitemap for the website
 const SitemapGenerator = () => {
-  const baseUrl = "https://turmet-travel.com";
+  const baseUrl = process.env.SITE_URL || "https://oneworldholidays.net";
   const currentDate = new Date().toISOString();
 
   const staticPages = [
@@ -44,7 +44,7 @@ const SitemapGenerator = () => {
 
     staticPages.forEach((page) => {
       sitemap += "  <url>\n";
-      sitemap += `    <loc>${baseUrl}${page.url}</loc>\n`;
+      sitemap += `    <loc>${baseUrl.replace(/\/$/, "")}${page.url}</loc>\n`;
       sitemap += `    <lastmod>${page.lastmod}</lastmod>\n`;
       sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
       sitemap += `    <priority>${page.priority}</priority>\n`;

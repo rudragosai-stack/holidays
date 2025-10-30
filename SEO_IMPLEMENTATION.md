@@ -187,7 +187,7 @@ npm run generate-sitemap
 
 ## 🚀 Deployment Notes
 
-1. **Update URLs**: Change `https://turmet-travel.com` to your actual domain
+1. **Update URLs**: Change `https://oneworldholidays.net/` to your actual domain
 2. **Update Contact Info**: Update phone, email, and address in config
 3. **Social Media**: Update social media links
 4. **Analytics**: Add Google Analytics and Search Console

@@ -6,7 +6,7 @@ const SEOHead = ({
   description = "Discover amazing travel destinations, tours, and activities with One World Holidays. Book your dream vacation with our expert travel agency.",
   keywords = "travel, tours, vacation, destinations, travel agency, adventure, holiday, booking",
   image = "/mainimage/banner.jpg",
-  url = "https://turmet-travel.com",
+  url = "https://oneworldholidays.net",
   type = "website",
   structuredData = null,
   canonical = null,
@@ -47,8 +47,8 @@ const SEOHead = ({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullImageUrl} />
-      <meta name="twitter:site" content="@turmet_travel" />
-      <meta name="twitter:creator" content="@turmet_travel" />
+      <meta name="twitter:site" content="@oneworldholidays" />
+      <meta name="twitter:creator" content="@oneworldholidays" />
 
       {/* Additional SEO Meta Tags */}
       <meta name="author" content="One World Holidays" />

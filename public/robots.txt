@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://turmet-travel.com/sitemap.xml
+Sitemap: https://oneworldholidays.net/sitemap.xml
 
 # Disallow admin and private areas
 Disallow: /studio/

@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 // Generate sitemap.xml
 const generateSitemap = () => {
-  const baseUrl = "https://turmet-travel.com";
+  const baseUrl = process.env.SITE_URL || "https://oneworldholidays.net";
   const currentDate = new Date().toISOString();
 
   const staticPages = [
@@ -83,7 +83,7 @@ const generateRobotsTxt = () => {
 Allow: /
 
 # Sitemap
-Sitemap: https://turmet-travel.com/sitemap.xml
+Sitemap: ${process.env.SITE_URL || "https://oneworldholidays.net"}/sitemap.xml
 
 # Disallow admin and private areas
 Disallow: /studio/
