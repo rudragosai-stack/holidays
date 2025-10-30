@@ -1,6 +1,6 @@
-# Sanity CMS Setup for Turmet Travel Agency
+# Sanity CMS Setup for One World Holidays Agency
 
-This document explains how to set up and use Sanity CMS with your Turmet Travel Agency React application.
+This document explains how to set up and use Sanity CMS with your One World Holidays Agency React application.
 
 ## What's Been Set Up
 

@@ -2,7 +2,7 @@ import React from "react";
 
 // This component generates a sitemap for the website
 const SitemapGenerator = () => {
-  const baseUrl = "https://turmet-travel.com";
+  const baseUrl = "https://oneworldholidays.com";
   const currentDate = new Date().toISOString();
 
   const staticPages = [

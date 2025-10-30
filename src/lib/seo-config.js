@@ -1,15 +1,15 @@
-// SEO Configuration for Turmet Travel
+// SEO Configuration for One World Holidays
 export const seoConfig = {
   // Site Information
-  siteName: "Turmet Travel",
-  siteUrl: "https://turmet-travel.com",
+  siteName: "One World Holidays",
+  siteUrl: "https://oneworldholidays.com",
   siteDescription: "Your gateway to amazing adventures and unforgettable travel experiences",
   siteKeywords: "travel, tours, vacation, destinations, travel agency, adventure, holiday, booking, flights, hotels",
 
   // Contact Information
   contact: {
     phone: "+1-555-0123",
-    email: "info@turmet-travel.com",
+    email: "info@oneworldholidays.com",
     address: {
       street: "123 Travel Street",
       city: "New York",
@@ -21,10 +21,10 @@ export const seoConfig = {
 
   // Social Media
   social: {
-    facebook: "https://www.facebook.com/turmet-travel",
-    instagram: "https://www.instagram.com/turmet_travel",
-    twitter: "https://www.twitter.com/turmet_travel",
-    linkedin: "https://www.linkedin.com/company/turmet-travel",
+    facebook: "https://www.facebook.com/oneworldholidays",
+    instagram: "https://www.instagram.com/oneworldholidays",
+    twitter: "https://www.twitter.com/oneworldholidays",
+    linkedin: "https://www.linkedin.com/company/oneworldholidays",
   },
 
   // Default Images
@@ -38,28 +38,28 @@ export const seoConfig = {
   // Page-specific SEO data
   pages: {
     home: {
-      title: "Turmet Travel - Your Gateway to Amazing Adventures",
-      description: "Discover amazing travel destinations, tours, and activities with Turmet Travel. Book your dream vacation with our expert travel agency.",
+      title: "One World Holidays - Your Gateway to Amazing Adventures",
+      description: "Discover amazing travel destinations, tours, and activities with One World Holidays. Book your dream vacation with our expert travel agency.",
       keywords: "travel, tours, vacation, destinations, travel agency, adventure, holiday, booking, flights, hotels",
     },
     about: {
-      title: "About Us - Turmet Travel | Your Trusted Travel Partner",
-      description: "Learn about Turmet Travel's mission to provide exceptional travel experiences. Discover our story, values, and commitment to making your dreams come true.",
+      title: "About Us - One World Holidays | Your Trusted Travel Partner",
+      description: "Learn about One World Holidays' mission to provide exceptional travel experiences. Discover our story, values, and commitment to making your dreams come true.",
       keywords: "about us, travel agency, company story, team, mission, values, travel experts",
     },
     destinations: {
-      title: "Travel Destinations - Explore Amazing Places | Turmet Travel",
+      title: "Travel Destinations - Explore Amazing Places | One World Holidays",
       description: "Explore our curated collection of amazing travel destinations. From tropical beaches to mountain adventures, find your perfect getaway.",
       keywords: "destinations, travel places, vacation spots, tourist attractions, travel locations, holiday destinations",
     },
     tours: {
-      title: "Tour Packages - Amazing Travel Experiences | Turmet Travel",
+      title: "Tour Packages - Amazing Travel Experiences | One World Holidays",
       description: "Discover our carefully crafted tour packages. From adventure tours to luxury getaways, we have the perfect travel experience for you.",
       keywords: "tour packages, travel tours, vacation packages, guided tours, adventure tours, luxury travel",
     },
     contact: {
-      title: "Contact Us - Get in Touch | Turmet Travel",
-      description: "Contact Turmet Travel for all your travel needs. Our expert team is ready to help you plan your perfect vacation.",
+      title: "Contact Us - Get in Touch | One World Holidays",
+      description: "Contact One World Holidays for all your travel needs. Our expert team is ready to help you plan your perfect vacation.",
       keywords: "contact us, travel consultation, customer service, travel planning, booking assistance",
     },
   },

@@ -6,6 +6,7 @@ import DestinationPage from "../Pages/DestinationPage";
 import DestinationDetailsPage from "../Pages/DestinationDetailsPage";
 import TourPage from "../Pages/TourPage";
 import TourDetailsPage from "../Pages/TourDetailsPage";
+import InternationalExplorePage from "../Pages/InternationalExplorePage";
 import ContactPage from "../Pages/ContactPage";
 import StudioRedirect from "../Components/Studio/StudioRedirect";
 
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
       {
         path: "/tour/international",
         Component: TourPage,
+      },
+      {
+        path: "/tour/international/explore",
+        Component: InternationalExplorePage,
       },
       {
         path: "/tour/tour-details",

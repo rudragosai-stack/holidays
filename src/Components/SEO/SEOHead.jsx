@@ -2,11 +2,11 @@ import React from "react";
 import { Helmet } from "react-helmet";
 
 const SEOHead = ({
-  title = "Turmet Travel - Your Gateway to Amazing Adventures",
-  description = "Discover amazing travel destinations, tours, and activities with Turmet Travel. Book your dream vacation with our expert travel agency.",
+  title = "One World Holidays - Your Gateway to Amazing Adventures",
+  description = "Discover amazing travel destinations, tours, and activities with One World Holidays. Book your dream vacation with our expert travel agency.",
   keywords = "travel, tours, vacation, destinations, travel agency, adventure, holiday, booking",
   image = "/mainimage/banner.jpg",
-  url = "https://turmet-travel.com",
+  url = "https://oneworldholidays.com",
   type = "website",
   structuredData = null,
   canonical = null,
@@ -38,7 +38,7 @@ const SEOHead = ({
       <meta property="og:image" content={fullImageUrl} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:site_name" content="Turmet Travel" />
+      <meta property="og:site_name" content="One World Holidays" />
       <meta property="og:locale" content="en_US" />
 
       {/* Twitter */}
@@ -47,11 +47,11 @@ const SEOHead = ({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullImageUrl} />
-      <meta name="twitter:site" content="@turmet_travel" />
-      <meta name="twitter:creator" content="@turmet_travel" />
+      <meta name="twitter:site" content="@oneworldholidays" />
+      <meta name="twitter:creator" content="@oneworldholidays" />
 
       {/* Additional SEO Meta Tags */}
-      <meta name="author" content="Turmet Travel" />
+      <meta name="author" content="One World Holidays" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
       <meta name="language" content="English" />
@@ -63,7 +63,7 @@ const SEOHead = ({
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="apple-mobile-web-app-title" content="Turmet Travel" />
+      <meta name="apple-mobile-web-app-title" content="One World Holidays" />
 
       {/* Favicon and Icons */}
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

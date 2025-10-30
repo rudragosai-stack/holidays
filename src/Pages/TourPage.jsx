@@ -2,6 +2,8 @@ import React from "react";
 import { useLocation } from "react-router";
 import BreadCumb from "../Components/Common/BreadCumb";
 import Tour from "../Components/Tour/Tour";
+import Story1 from "../Components/Story/Story1";
+import FeaturedTour1 from "../Components/FeaturedTour/FeaturedTour1";
 
 const TourPage = () => {
   const location = useLocation();
@@ -23,6 +25,12 @@ const TourPage = () => {
     <div>
       <BreadCumb bgimg="/mainimage/banner.jpg" Title={pageTitle}></BreadCumb>
       <Tour tourType={tourType}></Tour>
+      {tourType === "international" && (
+        <>
+          <Story1></Story1>
+          <FeaturedTour1></FeaturedTour1>
+        </>
+      )}
     </div>
   );
 };

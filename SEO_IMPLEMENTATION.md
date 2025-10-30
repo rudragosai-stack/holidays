@@ -1,6 +1,6 @@
-# SEO Implementation Guide for Turmet Travel
+# SEO Implementation Guide for One World Holidays
 
-This document outlines the comprehensive SEO implementation for the Turmet Travel website.
+This document outlines the comprehensive SEO implementation for the One World Holidays website.
 
 ## 🚀 Features Implemented
 
@@ -187,7 +187,7 @@ npm run generate-sitemap
 
 ## 🚀 Deployment Notes
 
-1. **Update URLs**: Change `https://turmet-travel.com` to your actual domain
+1. **Update URLs**: Change `https://oneworldholidays.com` to your actual domain
 2. **Update Contact Info**: Update phone, email, and address in config
 3. **Social Media**: Update social media links
 4. **Analytics**: Add Google Analytics and Search Console

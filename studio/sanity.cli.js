@@ -5,5 +5,5 @@ export default defineCliConfig({
     projectId: "v488knj2",
     dataset: "production",
   },
-  studioHost: "turmet-travel",
+  studioHost: "oneworldholidays",
 });

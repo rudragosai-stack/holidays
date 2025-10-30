@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { urlFor, fetchData, queries } from "../../lib/sanity";
+import FilterSidebar from "./FilterSidebar";
 
-const Tour = ({ tourType = "all" }) => {
+const Tour = ({ tourType = "all", forceSidebar = false }) => {
   const [tours, setTours] = useState([]);
   const [filteredTours, setFilteredTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const toursPerPage = 9;
   const [filters, setFilters] = useState({
     locations: [],
     activities: [],
@@ -196,7 +199,7 @@ const Tour = ({ tourType = "all" }) => {
     loadTours();
   }, [tourType]);
 
-  // Filter handling functions
+  // Filter handling functions (used only when sidebar is visible)
   const handleLocationFilter = (location) => {
     setFilters((prev) => ({
       ...prev,
@@ -241,6 +244,7 @@ const Tour = ({ tourType = "all" }) => {
     }
 
     setFilteredTours(filtered);
+    setCurrentPage(1); // Reset to page 1 when filters change
   }, [filters, tours]);
 
   // Show loading state
@@ -277,10 +281,51 @@ const Tour = ({ tourType = "all" }) => {
     );
   }
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredTours.length / toursPerPage);
+  const indexOfLastTour = currentPage * toursPerPage;
+  const indexOfFirstTour = indexOfLastTour - toursPerPage;
+  const currentTours = filteredTours.slice(indexOfFirstTour, indexOfLastTour);
+
+  // Generate page numbers
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 3;
+
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      if (currentPage <= 2) {
+        for (let i = 1; i <= maxPagesToShow; i++) {
+          pageNumbers.push(i);
+        }
+      } else if (currentPage >= totalPages - 1) {
+        for (let i = totalPages - maxPagesToShow + 1; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pageNumbers.push(i);
+        }
+      }
+    }
+    return pageNumbers;
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const showSidebar = forceSidebar || tourType === "domestic";
+  const cardColXL = showSidebar ? "4" : "3"; // sidebar => 3 per row (xl-4); no sidebar => 4 per row (xl-3)
+
   return (
     <section className="tour-section section-padding fix">
       {/* WhatsApp Floating Button */}
-      <div className="whatsapp-float" onClick={() => window.open("https://wa.me/1234567890", "_blank")}>
+      <div className="whatsapp-float" onClick={() => window.open("https://wa.me/9978307772", "_blank")}>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
         </svg>
@@ -289,10 +334,10 @@ const Tour = ({ tourType = "all" }) => {
       <div className="container custom-container">
         <div className="tour-destination-wrapper">
           <div className="row g-4">
-            <div className="col-xl-9">
+            <div className={"col-xl-" + (showSidebar ? "9" : "12")}>
               <div className="row g-4">
-                {filteredTours.map((item, i) => (
-                  <div key={item._id || i} className="col-xl-4 col-lg-4 col-md-6 wow fadeInUp wow" data-wow-delay=".3s">
+                {currentTours.map((item, i) => (
+                  <div key={item._id || i} className={`col-xl-${cardColXL} col-lg-4 col-md-6 wow fadeInUp wow`} data-wow-delay=".3s">
                     <div className="destination-card-items mt-0">
                       <div className="destination-image">
                         <img src={item.img} alt={item.title} />
@@ -328,136 +373,77 @@ const Tour = ({ tourType = "all" }) => {
                         </ul>
                         <div className="price">
                           <h6>
-                            {item.price}
+                            ₹{item.price}
                             <span>{item.priceUnit}</span>
                           </h6>
-                          <Link to={`/tour/${item.slug}`} className="theme-btn style-2">
-                            Book Now<i className="bi bi-arrow-right"></i>
-                          </Link>
+                          {tourType === "international" && !forceSidebar ? (
+                            <Link to="/tour/international/explore" className="theme-btn style-2">
+                              View More<i className="bi bi-arrow-right"></i>
+                            </Link>
+                          ) : (
+                            <Link to={`/tour/${item.slug}`} className="theme-btn style-2">
+                              Book Now<i className="bi bi-arrow-right"></i>
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="page-nav-wrap text-center">
-                <ul>
-                  <li>
-                    <a className="page-numbers" href="#">
-                      <i className="bi bi-arrow-left"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a className="page-numbers" href="#">
-                      01
-                    </a>
-                  </li>
-                  <li>
-                    <a className="page-numbers" href="#">
-                      02
-                    </a>
-                  </li>
-                  <li>
-                    <a className="page-numbers" href="#">
-                      03
-                    </a>
-                  </li>
-                  <li>
-                    <a className="page-numbers" href="#">
-                      <i className="bi bi-arrow-right"></i>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className="col-xl-3">
-              <div className="main-sidebar mt-0">
-                {/* Results Summary */}
-                <div className="single-sidebar-widget mb-4">
-                  <div className="wid-title">
-                    <h3>Filter Results</h3>
-                  </div>
-                  <div className="filter-summary">
-                    <p className="mb-2">
-                      <strong>{filteredTours.length}</strong> of <strong>{tours.length}</strong> tours
-                    </p>
-                    {(filters.locations.some((loc) => loc.selected) || filters.activities.some((act) => act.selected) || filters.tourTypes.some((type) => type.selected)) && (
+              {totalPages > 1 && (
+                <div className="page-nav-wrap text-center">
+                  <ul>
+                    <li>
                       <button
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => {
-                          setFilters({
-                            locations: filters.locations.map((loc) => ({ ...loc, selected: false })),
-                            activities: filters.activities.map((act) => ({ ...act, selected: false })),
-                            tourTypes: filters.tourTypes.map((type) => ({ ...type, selected: false })),
-                          });
-                        }}
+                        className="page-numbers"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        style={{ cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1 }}
                       >
-                        Clear All Filters
+                        <i className="bi bi-arrow-left"></i>
                       </button>
-                    )}
-                  </div>
-                </div>
-                <div className="single-sidebar-widget">
-                  <div className="wid-title">
-                    <h3>Destination Category</h3>
-                  </div>
-                  <div className="categories-list">
-                    {filters.locations.map((location, index) => (
-                      <label key={index} className="checkbox-single d-flex justify-content-between align-items-center">
-                        <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                          <span className="checkbox-area d-center">
-                            <input type="checkbox" checked={location.selected || false} onChange={() => handleLocationFilter(location.name)} />
-                            <span className="checkmark d-center"></span>
-                          </span>
-                          <span className="text-color">{location.name}</span>
-                        </span>
-                        <span className="text-color">{location.count}</span>
-                      </label>
+                    </li>
+                    {getPageNumbers().map((pageNum) => (
+                      <li key={pageNum}>
+                        <button className={`page-numbers ${currentPage === pageNum ? "current" : ""}`} onClick={() => handlePageChange(pageNum)}>
+                          {String(pageNum).padStart(2, "0")}
+                        </button>
+                      </li>
                     ))}
-                  </div>
+                    <li>
+                      <button
+                        className="page-numbers"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        style={{ cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1 }}
+                      >
+                        <i className="bi bi-arrow-right"></i>
+                      </button>
+                    </li>
+                  </ul>
                 </div>
-
-                <div className="single-sidebar-widget">
-                  <div className="wid-title">
-                    <h3>Activities</h3>
-                  </div>
-                  <div className="categories-list">
-                    {filters.activities.map((activity, index) => (
-                      <label key={index} className="checkbox-single d-flex justify-content-between align-items-center">
-                        <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                          <span className="checkbox-area d-center">
-                            <input type="checkbox" checked={activity.selected || false} onChange={() => handleActivityFilter(activity.name)} />
-                            <span className="checkmark d-center"></span>
-                          </span>
-                          <span className="text-color">{activity.name}</span>
-                        </span>
-                        <span className="text-color">{activity.count}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="single-sidebar-widget">
-                  <div className="wid-title style-2">
-                    <h3>Difficulty Level</h3>
-                    <i className="fa-solid fa-chevron-down"></i>
-                  </div>
-                  <div className="categories-list">
-                    {filters.tourTypes.map((type, index) => (
-                      <label key={index} className="checkbox-single d-flex justify-content-between align-items-center">
-                        <span className="d-flex gap-xl-3 gap-2 align-items-center">
-                          <span className="checkbox-area d-center">
-                            <input type="checkbox" checked={type.selected || false} onChange={() => handleTourTypeFilter(type.value)} />
-                            <span className="checkmark d-center"></span>
-                          </span>
-                          <span className="text-color">{type.name}</span>
-                        </span>
-                        <span className="text-color">{type.count}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
+            {showSidebar && (
+              <div className="col-xl-3">
+                <FilterSidebar
+                  filters={filters}
+                  filteredCount={filteredTours.length}
+                  totalCount={tours.length}
+                  onClearAll={() =>
+                    setFilters({
+                      locations: filters.locations.map((loc) => ({ ...loc, selected: false })),
+                      activities: filters.activities.map((act) => ({ ...act, selected: false })),
+                      tourTypes: filters.tourTypes.map((type) => ({ ...type, selected: false })),
+                    })
+                  }
+                  onToggleLocation={handleLocationFilter}
+                  onToggleActivity={handleActivityFilter}
+                  onToggleTourType={handleTourTypeFilter}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,10 +1,10 @@
 {
-  "name": "turmet-travel-agency-studio",
+  "name": "oneworldholidays-agency-studio",
   "private": true,
   "version": "1.0.0",
-  "description": "Sanity Studio for Turmet Travel Agency",
+  "description": "Sanity Studio for One World Holidays Agency",
   "main": "package.json",
-  "author": "Turmet Travel Agency",
+  "author": "One World Holidays Agency",
   "license": "UNLICENSED",
   "scripts": {
     "dev": "sanity dev",

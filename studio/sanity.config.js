@@ -6,8 +6,8 @@ import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./schemas";
 
 export default defineConfig({
-  name: "turmet-travel-agency",
-  title: "Turmet Travel Agency",
+  name: "oneworldholidays-agency",
+  title: "One World Holidays Agency",
   projectId: "v488knj2", // Your new project ID
   dataset: "production",
   plugins: [structureTool(), visionTool()],

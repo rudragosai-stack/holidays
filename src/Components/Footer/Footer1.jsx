@@ -217,7 +217,7 @@ const Footer1 = () => {
             >
               Contact Us
             </h4>
-            <p style={{ color: "#666", marginBottom: "30px", fontFamily: "sans-serif" }}>Turmet@gmail.com</p>
+            <p style={{ color: "#666", marginBottom: "30px", fontFamily: "sans-serif" }}>contact@oneworldholidays.com</p>
 
             <h4
               style={{
@@ -265,7 +265,7 @@ const Footer1 = () => {
               <p style={{ margin: 0, fontFamily: "sans-serif" }}>Privacy and policy</p>
             </div>
             <div className="col-md-6 text-md-end">
-              <p style={{ margin: 0, fontFamily: "sans-serif" }}>All rights reserved @ Turmet.com</p>
+              <p style={{ margin: 0, fontFamily: "sans-serif" }}>All rights reserved @ oneworldholidays.com</p>
             </div>
           </div>
         </div>

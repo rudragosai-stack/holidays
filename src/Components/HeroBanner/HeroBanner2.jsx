@@ -125,7 +125,7 @@ const HeroBanner2 = () => {
             <div className="row">
               <div className="col-lg-6">
                 <div className="hero-content">
-                  <div className="sub-title">Welcome to Turmet Travel</div>
+                  <div className="sub-title">Welcome to One World Holidays</div>
                   <h1>
                     Discover Your Next <br />
                     Handpicked Journey
