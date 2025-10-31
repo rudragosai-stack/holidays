@@ -41,11 +41,17 @@ export const queries = {
   getInternationalTourBySlug: `*[_type == "internationalTour" && slug.current == $slug][0]`,
 
   // Combined Tours (for displaying both types together)
-  getAllToursCombined: `*[_type in ["domesticTour", "internationalTour"] && isActive == true] | order(order asc)`,
+  getAllToursCombined: `*[_type in ["domesticTour", "internationalTour"] && isActive == true] | order(order asc){
+    ...,
+    "storyVideoUrl": storyVideo.asset->url
+  }`,
   getFeaturedToursCombined: `*[_type in ["domesticTour", "internationalTour"] && isActive == true && featured == true] | order(order asc)`,
 
-  // Get tour by slug from any tour type (including benefits field which is used in Sanity)
-  getAnyTourBySlug: `*[_type in ["domesticTour", "internationalTour"] && slug.current == $slug][0]`,
+  // Get tour by slug from any tour type, plus computed video URL for file type
+  getAnyTourBySlug: `*[_type in ["domesticTour", "internationalTour"] && slug.current == $slug][0]{
+    ...,
+    "storyVideoUrl": storyVideo.asset->url
+  }`,
 };
 
 // Helper function to fetch data

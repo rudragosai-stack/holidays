@@ -24,6 +24,7 @@ const TourDetails = ({ slug }) => {
         console.log("Tour type:", data?._type);
         console.log("Full tour object keys:", data ? Object.keys(data) : "No data");
         console.log("Image URL attempt:", data?.mainImage ? urlFor(data.mainImage).width(1200).height(700).url() : "No mainImage");
+        console.log("Story video URL from Sanity:", data?.storyVideoUrl || "<missing>");
 
         // If no tour data found, try to get from combined tour listing as fallback
         if (!data || (Array.isArray(data) && data.length === 0)) {
@@ -165,6 +166,17 @@ const TourDetails = ({ slug }) => {
   // Reset active image when tour changes
   useEffect(() => {
     setActiveImageUrl(null);
+  }, [tour]);
+
+  // Log when story video URL changes for debugging
+  useEffect(() => {
+    if (tour) {
+      if (tour.storyVideoUrl) {
+        console.log("Using story video URL:", tour.storyVideoUrl);
+      } else {
+        console.log("No storyVideoUrl found on tour. Falling back to /mainimage/video.mp4");
+      }
+    }
   }, [tour]);
 
   const faqContent = [
@@ -376,33 +388,151 @@ const TourDetails = ({ slug }) => {
       </div>
 
       <div className="container">
+        {/* Watch Our Story (inline replica of Story1 design, no import) */}
+        <div className="watch-video-section pb-0 fix">
+          <div className="section-title text-center">
+            <span className="sub-title wow fadeInUp">Watch Our Story</span>
+            <h2 className="wow fadeInUp wow" data-wow-delay=".3s">
+              {tour.description}
+            </h2>
+          </div>
+        </div>
+        <div className="video-wrapper">
+          <div>
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              style={{ width: "100%", height: "600px", objectFit: "cover", borderRadius: "50px" }}
+              onCanPlay={() => console.log("Video can play:", tour?.storyVideoUrl || "/mainimage/video.mp4")}
+              onLoadedData={() => console.log("Video loaded data:", tour?.storyVideoUrl || "/mainimage/video.mp4")}
+              onError={(e) => console.log("Video failed to load:", tour?.storyVideoUrl || "/mainimage/video.mp4", e)}
+            >
+              <source src={tour?.storyVideoUrl || "/mainimage/video.mp4"} type="video/mp4" />
+            </video>
+          </div>
+        </div>
+
+        {/* Travel Related Section */}
+        <section className="section-padding" style={{ paddingTop: "24px" }}>
+          <div
+            className="wow fadeInUp"
+            data-wow-delay=".2s"
+            style={{
+              background: "linear-gradient(135deg, rgba(13,110,253,0.06) 0%, rgba(102,16,242,0.06) 100%)",
+              borderRadius: "20px",
+              padding: "32px",
+            }}
+          >
+            <div className="section-title text-center">
+              <span className="sub-title">Travel Related</span>
+              <h2 className="wow fadeInUp" data-wow-delay=".3s">
+                Make The Most Of Your Trip
+              </h2>
+              <p className="wow fadeInUp" data-wow-delay=".4s" style={{ maxWidth: 720, margin: "8px auto 0", opacity: 0.9 }}>
+                Helpful tips and quick guides to keep your journey smooth, safe, and memorable.
+              </p>
+            </div>
+
+            <div className="row g-4" style={{ marginTop: 8 }}>
+              {[
+                {
+                  icon: "/assets/img/icon/27.svg",
+                  title: "Packing Essentials",
+                  text: "Carry light layers, universal adapters, and a compact first-aid kit.",
+                },
+                {
+                  icon: "/assets/img/icon/33.svg",
+                  title: "Best Time To Go",
+                  text: "Check local seasons and festivals for a richer travel experience.",
+                },
+                {
+                  icon: "/assets/img/icon/29.svg",
+                  title: "Local Etiquette",
+                  text: "Learn basic phrases and respect customs to connect with locals.",
+                },
+                {
+                  icon: "/assets/img/icon/30.svg",
+                  title: "Health & Safety",
+                  text: "Keep copies of IDs, stay hydrated, and follow guide instructions.",
+                },
+                {
+                  icon: "/assets/img/icon/31.svg",
+                  title: "Money & Payments",
+                  text: "Carry a mix of cash and cards; notify your bank before travel.",
+                },
+                {
+                  icon: "/assets/img/icon/32.svg",
+                  title: "Connectivity",
+                  text: "Get a local SIM or eSIM for maps, rides, and quick bookings.",
+                },
+              ].map((item, idx) => (
+                <div className="col-12 col-md-6 col-lg-4" key={`travel-${idx}`}>
+                  <div
+                    className="wow fadeInUp h-100"
+                    data-wow-delay={`.${2 + (idx % 5)}s`}
+                    style={{
+                      background: "#fff",
+                      borderRadius: "16px",
+                      padding: "22px",
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.06)",
+                      border: "1px solid rgba(13,110,253,0.08)",
+                      display: "flex",
+                      gap: 14,
+                    }}
+                  >
+                    <div className="icon" style={{ minWidth: 44 }}>
+                      <img src={item.icon} alt="icon" width="44" height="44" />
+                    </div>
+                    <div className="content">
+                      <h6 style={{ margin: "2px 0 6px" }}>{item.title}</h6>
+                      <p style={{ margin: 0, opacity: 0.9 }}>{item.text}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <div className="activities-details-wrapper">
           <div className="row g-4 justify-content-center">
             <div className="col-12 col-lg-8">
-              <div className="details-thumb">
-                <img
-                  src={(() => {
-                    if (activeImageUrl) return activeImageUrl;
-                    if (tour?.mainImage) {
-                      try {
-                        return urlFor(tour.mainImage).width(1200).height(700).url();
-                      } catch (error) {
-                        console.log("Error generating Sanity image URL:", error);
-                        return tour?.img || "/assets/img/destails/tour-details.jpg";
+              <div className="details-thumb wow fadeInUp" data-wow-delay=".2s" style={{ marginBottom: "32px" }}>
+                <div
+                  style={{
+                    borderRadius: "20px",
+                    overflow: "hidden",
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
+                    border: "1px solid rgba(13,110,253,0.1)",
+                  }}
+                >
+                  <img
+                    src={(() => {
+                      if (activeImageUrl) return activeImageUrl;
+                      if (tour?.mainImage) {
+                        try {
+                          return urlFor(tour.mainImage).width(1200).height(700).url();
+                        } catch (error) {
+                          console.log("Error generating Sanity image URL:", error);
+                          return tour?.img || "/assets/img/destails/tour-details.jpg";
+                        }
                       }
-                    }
-                    return tour?.img || "/assets/img/destails/tour-details.jpg";
-                  })()}
-                  alt={tour?.title || "Tour Image"}
-                  onError={(e) => {
-                    console.log("Image failed to load, using fallback");
-                    e.target.src = "/assets/img/destails/tour-details.jpg";
-                  }}
-                  onLoad={() => {
-                    console.log("Image loaded successfully");
-                  }}
-                />
-                <ul className="image-list">
+                      return tour?.img || "/assets/img/destails/tour-details.jpg";
+                    })()}
+                    alt={tour?.title || "Tour Image"}
+                    onError={(e) => {
+                      console.log("Image failed to load, using fallback");
+                      e.target.src = "/assets/img/destails/tour-details.jpg";
+                    }}
+                    onLoad={() => {
+                      console.log("Image loaded successfully");
+                    }}
+                    style={{ width: "100%", display: "block" }}
+                  />
+                </div>
+                <ul className="image-list" style={{ marginTop: "16px", gap: "12px", display: "flex", flexWrap: "wrap" }}>
                   {(() => {
                     // Always include the current main image as a thumbnail so users can switch back
                     let mainThumbUrl = "";
@@ -526,12 +656,34 @@ const TourDetails = ({ slug }) => {
                 </ul>
               </div>
               <div className="activities-details-content">
-                <div className="tour-type-badge mb-3">
+                <div
+                  className="tour-type-badge mb-3 wow fadeInUp"
+                  data-wow-delay=".3s"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(13,110,253,0.08) 0%, rgba(102,16,242,0.08) 100%)",
+                    padding: "12px 20px",
+                    borderRadius: "12px",
+                    display: "inline-block",
+                  }}
+                >
                   {tour?._type === "domesticTour" && <span className="badge bg-success me-2">Domestic Tour</span>}
                   {tour?._type === "internationalTour" && <span className="badge bg-primary me-2">International Tour</span>}
                 </div>
-                <h2 className="mb-3">{tour?.title || "Ghorepani Poon Hill Trek"}</h2>
-                <div className="tour-description">
+                <h2 className="mb-4 wow fadeInUp" data-wow-delay=".4s" style={{ fontSize: "2rem", fontWeight: 700, color: "#1a202c" }}>
+                  {tour?.title || "Ghorepani Poon Hill Trek"}
+                </h2>
+                <div
+                  className="tour-description wow fadeInUp"
+                  data-wow-delay=".5s"
+                  style={{
+                    background: "#fff",
+                    borderRadius: "16px",
+                    padding: "24px",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                    border: "1px solid rgba(13,110,253,0.08)",
+                    marginBottom: "32px",
+                  }}
+                >
                   {/* Short Description */}
                   {tour?.description && (
                     <p className="mb-3">
@@ -561,22 +713,51 @@ const TourDetails = ({ slug }) => {
                   )}
                 </div>
                 {tour?.highlights && tour.highlights.length > 0 && (
-                  <div className="tour-highlights mb-4">
-                    <h3>Tour Highlights</h3>
+                  <div
+                    className="tour-highlights mb-4 wow fadeInUp"
+                    data-wow-delay=".6s"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(13,110,253,0.06) 0%, rgba(102,16,242,0.06) 100%)",
+                      borderRadius: "16px",
+                      padding: "24px",
+                      border: "1px solid rgba(13,110,253,0.1)",
+                    }}
+                  >
+                    <h3 style={{ marginBottom: "20px", color: "#1a202c", fontSize: "1.5rem", fontWeight: 600 }}>Tour Highlights</h3>
                     <div className="highlights-list">
-                      <ul className="list-unstyled">
+                      <ul className="list-unstyled" style={{ margin: 0 }}>
                         {tour.highlights.map((highlight, index) => (
-                          <li key={index} className="mb-2">
-                            <i className="bi bi-check-circle-fill text-success me-2"></i>
-                            {highlight}
+                          <li
+                            key={index}
+                            className="mb-3"
+                            style={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              padding: "8px 0",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <i className="bi bi-check-circle-fill text-success me-2" style={{ fontSize: "1.2rem", marginTop: "2px" }}></i>
+                            <span style={{ lineHeight: 1.6 }}>{highlight}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
                   </div>
                 )}
-                <div className="activities-list-item">
-                  <h3>Experience the Difference</h3>
+                <div
+                  className="activities-list-item wow fadeInUp"
+                  data-wow-delay=".7s"
+                  style={{
+                    background: "#fff",
+                    borderRadius: "16px",
+                    padding: "28px",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                    border: "1px solid rgba(13,110,253,0.08)",
+                    marginBottom: "32px",
+                  }}
+                >
+                  <h3 style={{ marginBottom: "24px", color: "#1a202c", fontSize: "1.5rem", fontWeight: 600 }}>Experience the Difference</h3>
                   <div className="activities-item">
                     {(() => {
                       // Check for benefits first (what's actually in Sanity), then experienceDifferences
@@ -642,7 +823,18 @@ const TourDetails = ({ slug }) => {
                     })()}
                   </div>
                 </div>
-                <div className="activities-box-wrap">
+                <div
+                  className="activities-box-wrap wow fadeInUp"
+                  data-wow-delay=".8s"
+                  style={{
+                    background: "#fff",
+                    borderRadius: "16px",
+                    padding: "28px",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                    border: "1px solid rgba(13,110,253,0.08)",
+                    marginBottom: "32px",
+                  }}
+                >
                   <div className="activities-box-area">
                     <div className="activities-box-item">
                       <div className="icon">
@@ -720,8 +912,18 @@ const TourDetails = ({ slug }) => {
                     </div>
                   </div>
                 </div>
-                <div className="faq-items">
-                  <h3>Tour Plan</h3>
+                <div
+                  className="faq-items wow fadeInUp"
+                  data-wow-delay=".9s"
+                  style={{
+                    background: "#fff",
+                    borderRadius: "16px",
+                    padding: "28px",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                    border: "1px solid rgba(13,110,253,0.08)",
+                  }}
+                >
+                  <h3 style={{ marginBottom: "24px", color: "#1a202c", fontSize: "1.5rem", fontWeight: 600 }}>Tour Plan</h3>
                   <div className="faq-accordion">
                     <div className="accordion" id="accordion">
                       {(() => {
@@ -740,7 +942,16 @@ const TourDetails = ({ slug }) => {
                         return items.map((item, index) => {
                           const collapseId = `faq-${index}`;
                           return (
-                            <div key={index} className={`accordion-item mb-3 ${index === openItemIndex ? "active" : ""}`}>
+                            <div
+                              key={index}
+                              className={`accordion-item mb-3 ${index === openItemIndex ? "active" : ""}`}
+                              style={{
+                                borderRadius: "12px",
+                                overflow: "hidden",
+                                border: "1px solid rgba(13,110,253,0.1)",
+                                background: "#fff",
+                              }}
+                            >
                               <h5 onClick={() => handleItemClick(index)} className="accordion-header">
                                 <button
                                   className="accordion-button collapsed"
@@ -749,12 +960,20 @@ const TourDetails = ({ slug }) => {
                                   data-bs-target={`#${collapseId}`}
                                   aria-expanded={index === openItemIndex}
                                   aria-controls={collapseId}
+                                  style={{
+                                    background: index === openItemIndex ? "linear-gradient(135deg, rgba(13,110,253,0.08) 0%, rgba(102,16,242,0.08) 100%)" : "#fff",
+                                    fontWeight: 600,
+                                    fontSize: "1rem",
+                                    color: "#1a202c",
+                                  }}
                                 >
                                   {item.title || `Day ${index + 1}`}
                                 </button>
                               </h5>
                               <div ref={accordionContentRef} id={collapseId} className="accordion-collapse collapse" data-bs-parent="#accordion">
-                                <div className="accordion-body">{Array.isArray(item.content) ? item.content.map((line, i) => <p key={i}>{line}</p>) : <p>{item.content}</p>}</div>
+                                <div className="accordion-body" style={{ background: "#f8fafc", padding: "20px", lineHeight: 1.7 }}>
+                                  {Array.isArray(item.content) ? item.content.map((line, i) => <p key={i}>{line}</p>) : <p>{item.content}</p>}
+                                </div>
                               </div>
                             </div>
                           );
@@ -806,6 +1025,126 @@ const TourDetails = ({ slug }) => {
             </div>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <section className="section-padding" style={{ paddingTop: "40px" }}>
+          <div
+            className="wow fadeInUp"
+            data-wow-delay=".2s"
+            style={{
+              background: "linear-gradient(135deg, rgba(13,110,253,0.06) 0%, rgba(102,16,242,0.06) 100%)",
+              borderRadius: "20px",
+              padding: "32px",
+            }}
+          >
+            <div className="section-title text-center">
+              <span className="sub-title">What Travelers Say</span>
+              <h2 className="wow fadeInUp" data-wow-delay=".3s">
+                Recent Reviews
+              </h2>
+              <p className="wow fadeInUp" data-wow-delay=".4s" style={{ maxWidth: 720, margin: "8px auto 0", opacity: 0.9 }}>
+                Real stories from happy explorers who booked with us. Your unforgettable journey starts here.
+              </p>
+            </div>
+
+            <div className="row g-4" style={{ marginTop: 8 }}>
+              {[
+                {
+                  name: "Aarav Mehta",
+                  location: "Mumbai, IN",
+                  rating: 5,
+                  text: "Seamless experience from booking to travel. The itinerary was well-balanced with enough free time. Highly recommended!",
+                },
+                {
+                  name: "Ishita Kapoor",
+                  location: "Delhi, IN",
+                  rating: 5,
+                  text: "Fantastic customer support and curated stays. The local guides were knowledgeable and super friendly.",
+                },
+                {
+                  name: "Rahul Sharma",
+                  location: "Bengaluru, IN",
+                  rating: 4,
+                  text: "Great value for money. Loved the food experiences and hidden gems we visited along the way.",
+                },
+                {
+                  name: "Sophia Fernandes",
+                  location: "Goa, IN",
+                  rating: 5,
+                  text: "Everything was perfectly organized. Transfers, hotels, and tours were top-notch. Will book again!",
+                },
+                {
+                  name: "Vikram Patel",
+                  location: "Ahmedabad, IN",
+                  rating: 5,
+                  text: "Loved the flexibility. They adjusted the plan to suit our family and the kids had a blast.",
+                },
+                {
+                  name: "Neha Verma",
+                  location: "Pune, IN",
+                  rating: 4,
+                  text: "Smooth experience and excellent hotel choices. The sunrise trek was the highlight of our trip!",
+                },
+              ].map((rev, idx) => (
+                <div className="col-12 col-md-6 col-lg-4" key={`rev-${idx}`}>
+                  <div
+                    className="wow fadeInUp h-100"
+                    data-wow-delay={`.${3 + (idx % 5)}s`}
+                    style={{
+                      background: "#fff",
+                      borderRadius: "16px",
+                      padding: "22px",
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.06)",
+                      border: "1px solid rgba(13,110,253,0.08)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+                      <div
+                        aria-hidden
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: "50%",
+                          background: "linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)",
+                          color: "#fff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontWeight: 600,
+                          letterSpacing: 0.5,
+                          marginRight: 12,
+                        }}
+                      >
+                        {rev.name
+                          .split(" ")
+                          .map((p) => p[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                      <div>
+                        <h6 style={{ margin: 0 }}>{rev.name}</h6>
+                        <small style={{ opacity: 0.7 }}>{rev.location}</small>
+                      </div>
+                    </div>
+                    <div style={{ color: "#f59e0b", marginBottom: 8 }}>
+                      {Array.from({ length: 5 }).map((_, s) => (
+                        <i key={`star-${s}`} className={`bi ${s < rev.rating ? "bi-star-fill" : "bi-star"}`} style={{ marginRight: 2 }}></i>
+                      ))}
+                    </div>
+                    <p style={{ margin: 0, lineHeight: 1.65 }}>{rev.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center" style={{ marginTop: 28 }}>
+              <Link to="/contact" className="theme-btn wow fadeInUp" data-wow-delay=".2s">
+                Plan Your Trip <i className="bi bi-arrow-right"></i>
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
     </section>
   );

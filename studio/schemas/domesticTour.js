@@ -89,6 +89,15 @@ export default {
       description: "Additional images for the tour detail page gallery",
     },
     {
+      name: "storyVideo",
+      title: "Story Video (Watch Our Story)",
+      type: "file",
+      options: {
+        accept: "video/*",
+      },
+      description: "Upload a promotional/story video to display on the tour details page",
+    },
+    {
       name: "price",
       title: "Price",
       type: "string",
