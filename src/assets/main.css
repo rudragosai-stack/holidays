@@ -10192,3 +10192,265 @@ input.main-search-input::placeholder {
   height: 32px !important;
   fill: white !important;
 }
+
+/* Domestic dropdown container */
+.cs_nav .cs_nav_list .domestic-menu {
+  width: 100%;
+  max-height: none !important;
+  overflow-y: visible !important;
+  display: flex;
+  gap: 20px;
+  background-color: #fff;
+  border-top: 2px solid #1ca8cb;
+  -webkit-box-shadow: 0px 1px 2px 0px rgba(2, 0, 181, 0.1);
+  box-shadow: 0px 1px 2px 0px rgba(2, 0, 181, 0.1);
+  padding: 12px 20px;
+}
+.cs_nav .cs_nav_list .domestic-menu-left {
+  flex: 1 1 auto;
+}
+.cs_nav .cs_nav_list .domestic-menu-list {
+  max-height: none !important;
+  overflow-y: visible !important;
+  display: block;
+  -webkit-column-count: 2;
+  -moz-column-count: 2;
+  column-count: 2;
+  -webkit-column-gap: 12px;
+  -moz-column-gap: 12px;
+  column-gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* override default submenu <ul> rules */
+  position: static !important;
+  width: auto !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.cs_nav .cs_nav_list .domestic-menu-list li {
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.cs_nav .cs_nav_list .domestic-menu-list li a {
+  border: none !important;
+  display: block;
+  padding: 10px 20px;
+  color: #6b7280;
+}
+.cs_nav .cs_nav_list .domestic-menu-right {
+  flex: 0 0 780px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  height: 100%;
+  align-items: stretch;
+}
+.cs_nav .cs_nav_list .domestic-menu-right img {
+  width: 100%;
+  height: 290px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+@keyframes domesticFadeIn {
+  from {
+    opacity: 0.1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.cs_nav .cs_nav_list .domestic-menu-right img.fade-in {
+  animation: domesticFadeIn 0.25s ease;
+}
+
+.cs_nav .cs_nav_list > li.cs-mega_menu {
+  position: static;
+}
+.cs_nav .cs_nav_list > li.cs-mega_menu > .domestic-menu,
+.cs_nav .cs_nav_list > li.cs-mega_menu > .international-menu {
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  position: absolute;
+  top: calc(100% + 15px);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.25s ease 0.2s,
+    top 0.25s ease 0.2s,
+    visibility 0s linear 0.25s;
+}
+.cs_nav .cs_nav_list > li.cs-mega_menu:hover > .domestic-menu,
+.cs_nav .cs_nav_list > li.cs-mega_menu:hover > .international-menu {
+  top: 90%;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity 0.2s ease 0s,
+    top 0.2s ease 0s,
+    visibility 0s linear 0s;
+}
+
+/* International list and right panel styling (mirror domestic) */
+.cs_nav .cs_nav_list .international-menu {
+  width: 100%;
+  max-height: none !important;
+  overflow-y: visible !important;
+  display: flex;
+  gap: 20px;
+  background-color: #fff;
+  border-top: 2px solid #1ca8cb;
+  -webkit-box-shadow: 0px 1px 2px 0px rgba(2, 0, 181, 0.1);
+  box-shadow: 0px 1px 2px 0px rgba(2, 0, 181, 0.1);
+  padding: 12px 20px;
+}
+.cs_nav .cs_nav_list .international-menu-left {
+  flex: 1 1 auto;
+}
+.cs_nav .cs_nav_list .international-menu-list {
+  max-height: none !important;
+  overflow-y: visible !important;
+  display: block;
+  -webkit-column-count: 2;
+  -moz-column-count: 2;
+  column-count: 2;
+  -webkit-column-gap: 12px;
+  -moz-column-gap: 12px;
+  column-gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: static !important;
+  width: auto !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.cs_nav .cs_nav_list .international-menu-list li {
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.cs_nav .cs_nav_list .international-menu-list li a {
+  border: none !important;
+  display: block;
+  padding: 10px 20px;
+  color: #6b7280;
+}
+.cs_nav .cs_nav_list .international-menu-right {
+  flex: 0 0 780px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  height: 100%;
+  align-items: stretch;
+}
+.cs_nav .cs_nav_list .international-menu-right img {
+  width: 100%;
+  height: 290px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+.cs_nav .cs_nav_list .international-menu-right img.fade-in {
+  animation: domesticFadeIn 0.25s ease;
+}
+
+.domestic-menu-image img {
+  width: 50% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+/* Responsive: Simplify dropdowns on mobile - hide images, single column list */
+@media (max-width: 991px) {
+  /* Hide image panels on mobile */
+  .cs_nav .cs_nav_list .domestic-menu-right,
+  .cs_nav .cs_nav_list .international-menu-right {
+    display: none !important;
+  }
+
+  /* Single column lists on mobile instead of two columns */
+  .cs_nav .cs_nav_list .domestic-menu-list,
+  .cs_nav .cs_nav_list .international-menu-list {
+    -webkit-column-count: 1 !important;
+    -moz-column-count: 1 !important;
+    column-count: 1 !important;
+  }
+
+  /* Simplify dropdown containers on mobile */
+  .cs_nav .cs_nav_list .domestic-menu,
+  .cs_nav .cs_nav_list .international-menu {
+    flex-direction: column;
+    padding: 8px 0;
+    gap: 0;
+    background-color: #000 !important;
+    border-top: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure mobile dropdown (+) toggle is visible for mega items too */
+  .cs_nav .cs_nav_list > li.cs-mega_menu {
+    position: relative;
+  }
+  .cs_nav .cs_nav_list > li.cs-mega_menu .cs-munu_dropdown_toggle {
+    display: inline-block !important;
+    position: absolute !important;
+    right: 16px;
+    top: 14px; /* keep within the first line, not middle of expanded li */
+    transform: none;
+    z-index: 9999; /* keep above submenu so it's clickable to close */
+  }
+
+  /* Make mega dropdowns behave like normal dropdowns on mobile */
+  .cs_nav .cs_nav_list > li.cs-mega_menu .domestic-menu,
+  .cs_nav .cs_nav_list > li.cs-mega_menu .international-menu {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    display: none !important; /* hidden until toggle becomes active */
+    transition: none !important;
+    max-height: 60vh !important; /* limit height on small screens */
+    overflow-y: auto !important;
+  }
+  .cs_nav .cs_nav_list > li.cs-mega_menu span.cs-munu_dropdown_toggle.active + .domestic-menu,
+  .cs_nav .cs_nav_list > li.cs-mega_menu span.cs-munu_dropdown_toggle.active + .international-menu {
+    display: block !important; /* ensure it overrides any other rules */
+    animation: csFade 0.25s ease;
+  }
+
+  /* Simplify list items padding on mobile */
+  .cs_nav .cs_nav_list .domestic-menu-list li a,
+  .cs_nav .cs_nav_list .international-menu-list li a {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #fff !important;
+  }
+  .cs_nav .cs_nav_list .domestic-menu-list li a:hover,
+  .cs_nav .cs_nav_list .international-menu-list li a:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+  }
+}

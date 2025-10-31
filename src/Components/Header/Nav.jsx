@@ -17,7 +17,7 @@ export default function Nav({ setMobileToggle }) {
           About Us
         </Link>
       </li>
-      <li className="menu-item-has-children">
+      <li className="menu-item-has-children cs-mega_menu domestic-mega">
         <Link to="/tour/domestic" onClick={() => setMobileToggle(false)}>
           Domestic
         </Link>
@@ -25,7 +25,7 @@ export default function Nav({ setMobileToggle }) {
           <DomesticMenu onItemClick={() => setMobileToggle(false)} />
         </DropDown>
       </li>
-      <li className="menu-item-has-children">
+      <li className="menu-item-has-children cs-mega_menu international-mega">
         <Link to="/tour/international" onClick={() => setMobileToggle(false)}>
           International
         </Link>
